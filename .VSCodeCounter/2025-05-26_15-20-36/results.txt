@@ -1,0 +1,59 @@
+Date : 2025-05-26 15:20:36
+Directory : d:\lw\vue3\vue-project\src
+Total : 22 files,  2781 codes, 63 comments, 430 blanks, all 3274 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| Vue        |         14 |      2,165 |         25 |        309 |      2,499 |
+| CSS        |          3 |        514 |         30 |         94 |        638 |
+| TypeScript |          4 |        101 |          8 |         26 |        135 |
+| XML        |          1 |          1 |          0 |          1 |          2 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                  | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                     |         22 |      2,781 |         63 |        430 |      3,274 |
+| . (Files)                                                             |          2 |         75 |          1 |         21 |         97 |
+| assets                                                                |          3 |        265 |         13 |         50 |        328 |
+| components                                                            |         12 |      2,076 |         17 |        285 |      2,378 |
+| components\icons                                                      |          5 |         46 |          1 |          5 |         52 |
+| components\portfolio                                                  |          7 |      2,030 |         16 |        280 |      2,326 |
+| composables                                                           |          1 |         61 |          7 |         13 |         81 |
+| router                                                                |          1 |         13 |          0 |          3 |         16 |
+| stores                                                                |          1 |         10 |          0 |          3 |         13 |
+| style                                                                 |          1 |        250 |         17 |         45 |        312 |
+| views                                                                 |          1 |         31 |          8 |         10 |         49 |
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                              | language   | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| d:\lw\vue3\vue-project\src\App.vue                                    | Vue        |         58 |          0 |         14 |         72 |
+| d:\lw\vue3\vue-project\src\assets\base.css                            | CSS        |         71 |          2 |         14 |         87 |
+| d:\lw\vue3\vue-project\src\assets\logo.svg                            | XML        |          1 |          0 |          1 |          2 |
+| d:\lw\vue3\vue-project\src\assets\main.css                            | CSS        |        193 |         11 |         35 |        239 |
+| d:\lw\vue3\vue-project\src\components\icons\IconCommunity.vue         | Vue        |          7 |          0 |          1 |          8 |
+| d:\lw\vue3\vue-project\src\components\icons\IconDocumentation.vue     | Vue        |          7 |          0 |          1 |          8 |
+| d:\lw\vue3\vue-project\src\components\icons\IconEcosystem.vue         | Vue        |          7 |          0 |          1 |          8 |
+| d:\lw\vue3\vue-project\src\components\icons\IconSupport.vue           | Vue        |          7 |          0 |          1 |          8 |
+| d:\lw\vue3\vue-project\src\components\icons\IconTooling.vue           | Vue        |         18 |          1 |          1 |         20 |
+| d:\lw\vue3\vue-project\src\components\portfolio\ContactSection.vue    | Vue        |        345 |          7 |         53 |        405 |
+| d:\lw\vue3\vue-project\src\components\portfolio\ExperienceSection.vue | Vue        |        361 |          2 |         50 |        413 |
+| d:\lw\vue3\vue-project\src\components\portfolio\HeroSection.vue       | Vue        |        278 |          2 |         35 |        315 |
+| d:\lw\vue3\vue-project\src\components\portfolio\PortfolioFooter.vue   | Vue        |        230 |          1 |         38 |        269 |
+| d:\lw\vue3\vue-project\src\components\portfolio\PortfolioHeader.vue   | Vue        |        121 |          2 |         19 |        142 |
+| d:\lw\vue3\vue-project\src\components\portfolio\ProjectsSection.vue   | Vue        |        384 |          1 |         48 |        433 |
+| d:\lw\vue3\vue-project\src\components\portfolio\SkillsSection.vue     | Vue        |        311 |          1 |         37 |        349 |
+| d:\lw\vue3\vue-project\src\composables\useScrollAnimation.ts          | TypeScript |         61 |          7 |         13 |         81 |
+| d:\lw\vue3\vue-project\src\main.ts                                    | TypeScript |         17 |          1 |          7 |         25 |
+| d:\lw\vue3\vue-project\src\router\index.ts                            | TypeScript |         13 |          0 |          3 |         16 |
+| d:\lw\vue3\vue-project\src\stores\counter.ts                          | TypeScript |         10 |          0 |          3 |         13 |
+| d:\lw\vue3\vue-project\src\style\main.css                             | CSS        |        250 |         17 |         45 |        312 |
+| d:\lw\vue3\vue-project\src\views\Portfolio.vue                        | Vue        |         31 |          8 |         10 |         49 |
+| Total                                                                 |            |      2,781 |         63 |        430 |      3,274 |
++-----------------------------------------------------------------------+------------+------------+------------+------------+------------+
