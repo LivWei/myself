@@ -1,12 +1,11 @@
 <template>
   <div class="editor-panel">
     <div class="editor-header">
-      <div class="file-tabs">
-        <div class="tab active">
-          <span>{{ selectedFileName || '源代码' }}</span>
-          <button class="copy-btn" @click="copyCode" title="复制代码">📋</button>
-          <button class="run-btn" @click="runCode" title="运行">▶️</button>
-        </div>
+      <div class="editor-title">代码</div>
+      <div class="tab active">
+        <span>{{ selectedFileName || '源代码' }}</span>
+        <button class="copy-btn" @click="copyCode" title="复制代码">📋</button>
+        <button class="run-btn" @click="runCode" title="运行">▶️</button>
       </div>
     </div>
 
@@ -115,22 +114,29 @@ defineExpose({
 }
 
 .editor-header {
+  padding-left: 16px;
+  box-sizing: border-box;
+  height: 50px;
   background: #f5f5f5;
   border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.file-tabs {
-  display: flex;
+.editor-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333333;
 }
 
 .tab {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  background: #ffffff;
+  padding: 0 16px;
+  box-sizing: border-box;
   color: #333333;
-  font-size: 13px;
-  border-right: 1px solid #e0e0e0;
+  font-size: 16px;
   gap: 8px;
 }
 

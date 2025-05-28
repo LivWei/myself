@@ -70,15 +70,17 @@ defineExpose({
 }
 
 .preview-header {
-  padding: 12px 16px;
-  background: #f8f8f8;
+  height: 50px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  background: #f5f5f5;
   border-bottom: 1px solid #e0e0e0;
   display: flex;
-  padding: 12px 16px;
-  background: #ffffff;
   color: #333333;
-  font-size: 13px;
+  font-weight: 500;
+  font-size: 16px;
   justify-content: center;
+  align-items: center;
 }
 
 .zoom-btn:hover {

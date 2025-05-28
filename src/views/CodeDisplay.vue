@@ -1,36 +1,46 @@
 <template>
   <div class="code-display">
-    <!-- 左侧目录 -->
-    <CodeSidebar
-      :selectedFileId="selectedFile?.id"
-      @fileSelected="handleFileSelected"
-      ref="sidebarRef"
-    />
+    <!-- <div class="header">
+      <div class="header-left">代码示例</div>
 
-    <!-- 中间代码编辑器 -->
-    <div class="editor-container" :style="{ width: editorWidth + 'px' }">
-      <CodeEditor
-        :code="currentCode"
-        :selectedFileName="selectedFile?.name"
-        :fileType="selectedFile?.type"
-        @codeChanged="handleCodeChanged"
-        @copyCode="handleCopyCode"
-        @runCode="handleRunCode"
-        ref="editorRef"
+      <div class="tab-list">
+        <div class="tab-item">openlayers</div>
+      </div>
+    </div> -->
+
+    <div class="content">
+      <!-- 左侧目录 -->
+      <CodeSidebar
+        :selectedFileId="selectedFile?.id"
+        @fileSelected="handleFileSelected"
+        ref="sidebarRef"
       />
-    </div>
 
-    <!-- 拖拽分割线 -->
-    <div class="resizer" @mousedown="startResize"></div>
+      <!-- 中间代码编辑器 -->
+      <div class="editor-container" :style="{ width: editorWidth + 'px' }">
+        <CodeEditor
+          :code="currentCode"
+          :selectedFileName="selectedFile?.name"
+          :fileType="selectedFile?.type"
+          @codeChanged="handleCodeChanged"
+          @copyCode="handleCopyCode"
+          @runCode="handleRunCode"
+          ref="editorRef"
+        />
+      </div>
 
-    <!-- 右侧预览区域 -->
-    <div class="preview-container" :style="{ width: previewWidth + 'px' }">
-      <CodePreview
-        :fileType="selectedFile?.type"
-        :code="currentCode"
-        :consoleLogs="consoleLogs"
-        ref="previewRef"
-      />
+      <!-- 拖拽分割线 -->
+      <div class="resizer" @mousedown="startResize"></div>
+
+      <!-- 右侧预览区域 -->
+      <div class="preview-container" :style="{ width: previewWidth + 'px' }">
+        <CodePreview
+          :fileType="selectedFile?.type"
+          :code="currentCode"
+          :consoleLogs="consoleLogs"
+          ref="previewRef"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -321,6 +331,49 @@ onMounted(() => {
   background: #f5f5f5;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  height: 60px;
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.header-left {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.tab-list {
+  display: flex;
+  align-items: center;
+}
+
+.tab-item {
+  padding: 8px 16px;
+  font-size: 18px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tab-item:hover {
+  background: #007acc;
+  color: #ffffff;
+}
+
+.content {
+  flex: 1;
+  height: 0;
+  display: flex;
 }
 
 .editor-container {

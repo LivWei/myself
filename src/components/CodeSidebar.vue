@@ -1,21 +1,16 @@
 <template>
   <div class="sidebar">
-    <h3 class="sidebar-title">博索</h3>
     <div class="folder-tree">
-      <div class="tree-section">
-        <h4 class="section-title">HTML 示例</h4>
-        <ul class="file-list">
-          <li
-            v-for="item in htmlExamples"
-            :key="item.id"
-            @click="selectFile(item)"
-            :class="{ active: selectedFileId === item.id }"
-            class="file-item"
-          >
-            <span class="file-icon">🌐</span>
-            {{ item.name }}
-          </li>
-        </ul>
+      <h4 class="section-title">目录</h4>
+      <div class="tree-container">
+        <TreeNode
+          v-for="node in fileTree"
+          :key="node.id"
+          :node="node"
+          :selected-file-id="selectedFileId"
+          @file-selected="selectFile"
+          @toggle-directory="toggleDirectory"
+        />
       </div>
     </div>
   </div>
@@ -23,11 +18,11 @@
 
 <script setup lang="ts">
 import { ref, defineEmits, defineProps, onMounted } from 'vue'
+import TreeNode from './TreeNode.vue'
 import {
-  autoDetectHtmlFiles,
-  loadHtmlFile,
-  getFileNameWithoutExtension,
+  buildFileTree,
   type CodeExample,
+  type TreeNode as TreeNodeType,
 } from '../utils/htmlFileManager'
 
 // 定义 props
@@ -42,31 +37,17 @@ const emit = defineEmits<{
   fileSelected: [file: CodeExample]
 }>()
 
-// HTML 示例数据
-const htmlExamples = ref<CodeExample[]>([])
+// 文件树数据
+const fileTree = ref<TreeNodeType[]>([])
 
-// 初始化 HTML 示例
-const initHtmlExamples = async () => {
+// 初始化文件树
+const initFileTree = async () => {
   try {
-    const htmlFiles = await autoDetectHtmlFiles()
-    const examples: CodeExample[] = []
-
-    for (const file of htmlFiles) {
-      const code = await loadHtmlFile(file.fileName)
-      examples.push({
-        id: `html-${getFileNameWithoutExtension(file.fileName)}`,
-        name: file.displayName,
-        type: 'html',
-        description: file.description || `${file.displayName} - ${file.fileName}`,
-        code: code,
-        filePath: `/codeHtml/${file.fileName}`,
-      })
-    }
-
-    htmlExamples.value = examples
-    console.log(`已加载 ${examples.length} 个 HTML 示例文件`)
+    const tree = await buildFileTree()
+    fileTree.value = tree
+    console.log(`已构建文件树，包含 ${tree.length} 个根节点`)
   } catch (error) {
-    console.error('初始化 HTML 示例失败:', error)
+    console.error('初始化文件树失败:', error)
   }
 }
 
@@ -75,16 +56,47 @@ const selectFile = (file: CodeExample) => {
   emit('fileSelected', file)
 }
 
+const toggleDirectory = (nodeId: string) => {
+  const toggleNode = (nodes: TreeNodeType[]): boolean => {
+    for (const node of nodes) {
+      if (node.id === nodeId) {
+        node.expanded = !node.expanded
+        return true
+      }
+      if (node.children && toggleNode(node.children)) {
+        return true
+      }
+    }
+    return false
+  }
+  toggleNode(fileTree.value)
+}
+
+// 获取所有文件（用于获取默认文件）
+const getAllFiles = (nodes: TreeNodeType[]): CodeExample[] => {
+  const files: CodeExample[] = []
+  for (const node of nodes) {
+    if (node.type === 'file' && node.file) {
+      files.push(node.file)
+    }
+    if (node.children) {
+      files.push(...getAllFiles(node.children))
+    }
+  }
+  return files
+}
+
 // 生命周期
 onMounted(async () => {
-  await initHtmlExamples()
+  await initFileTree()
 })
 
 // 暴露方法供父组件调用
 defineExpose({
   getDefaultFile: () => {
-    if (htmlExamples.value.length > 0) {
-      return htmlExamples.value[0]
+    const allFiles = getAllFiles(fileTree.value)
+    if (allFiles.length > 0) {
+      return allFiles[0]
     }
   },
 })
@@ -92,66 +104,28 @@ defineExpose({
 
 <style scoped>
 .sidebar {
-  width: 200px;
+  width: 300px;
   background: #ffffff;
   color: #333333;
   overflow-y: auto;
   border-right: 1px solid #e0e0e0;
 }
 
-.sidebar-title {
-  padding: 16px;
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  border-bottom: 1px solid #e0e0e0;
-  color: #333333;
-}
-
-.folder-tree {
-  padding: 8px 0;
-}
-
-.tree-section {
-  margin-bottom: 16px;
-}
-
 .section-title {
-  padding: 8px 16px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
   margin: 0;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   color: #333333;
   background: #f5f5f5;
 }
 
-.file-list {
-  list-style: none;
-  margin: 0;
+.tree-container {
   padding: 0;
-}
-
-.file-item {
-  display: flex;
-  align-items: center;
-  padding: 6px 24px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background-color 0.2s;
-}
-
-.file-item:hover {
-  background: #f0f0f0;
-}
-
-.file-item.active {
-  background: #007acc;
-  color: #ffffff;
-}
-
-.file-icon {
-  margin-right: 8px;
-  font-size: 12px;
 }
 
 /* 滚动条样式 */
