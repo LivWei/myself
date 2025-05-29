@@ -19,7 +19,8 @@ export const directoryConfigs = [
       '电子围栏.html',
       '弹窗.html',
       '分屏对比.html',
-      '多屏联动.html'
+      '多屏联动.html',
+      '加载GeoJSON数据.html'
     ] // 预定义的文件列表
   },
   {
