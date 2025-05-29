@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenLayers 天地图分屏对比</title>
+    <link rel="stylesheet" href="/libs/Openlayers/ol.min.css" type="text/css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Microsoft YaHei', Arial, sans-serif;
+      }
+      #map {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+      }
+      .swipe-divider {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: #1976d2;
+        z-index: 10;
+        cursor: ew-resize;
+        transition: background 0.2s;
+      }
+      .swipe-divider:hover {
+        background: #1565c0;
+      }
+    </style>
+    <script src="/libs/Openlayers/ol.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="swipe-divider" class="swipe-divider"></div>
+    <script>
+      const TIANDITU_KEY = '3764ab3da844e87462f2f827afa0f9f3'
+      const WUHAN_COORDS = [114.3162, 30.581]
+      // 天地图矢量
+      const vectorLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: `http://t{0-7}.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+          wrapX: false,
+        }),
+      })
+      // 天地图影像
+      const imageLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: `http://t{0-7}.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+          wrapX: false,
+        }),
+      })
+      // 影像注记
+      const imageAnnoLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: `http://t{0-7}.tianditu.gov.cn/cia_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cia&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+          wrapX: false,
+        }),
+      })
+      // 矢量注记
+      const vectorAnnoLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: `http://t{0-7}.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+          wrapX: false,
+        }),
+      })
+      // 地图初始化
+      const map = new ol.Map({
+        target: 'map',
+        layers: [imageLayer, imageAnnoLayer, vectorLayer, vectorAnnoLayer],
+        view: new ol.View({
+          center: ol.proj.fromLonLat(WUHAN_COORDS),
+          zoom: 13,
+          maxZoom: 18,
+          minZoom: 3,
+        }),
+        controls: [new ol.control.Zoom(), new ol.control.Attribution()],
+      })
+      // 初始分割位置（百分比）
+      let swipePercent = 0.5
+      const divider = document.getElementById('swipe-divider')
+      const mapDiv = document.getElementById('map')
+      function setDividerPosition(percent) {
+        const width = mapDiv.offsetWidth
+        divider.style.left = percent * width - divider.offsetWidth / 2 + 'px'
+      }
+      setDividerPosition(swipePercent)
+      // 只显示左侧的矢量图层
+      vectorLayer.on('prerender', function (event) {
+        const ctx = event.context
+        const width = ctx.canvas.width * swipePercent
+        ctx.save()
+        ctx.beginPath()
+        ctx.rect(0, 0, width, ctx.canvas.height)
+        ctx.clip()
+      })
+      vectorLayer.on('postrender', function (event) {
+        event.context.restore()
+      })
+      vectorAnnoLayer.on('prerender', function (event) {
+        const ctx = event.context
+        const width = ctx.canvas.width * swipePercent
+        ctx.save()
+        ctx.beginPath()
+        ctx.rect(0, 0, width, ctx.canvas.height)
+        ctx.clip()
+      })
+      vectorAnnoLayer.on('postrender', function (event) {
+        event.context.restore()
+      })
+      // 拖动分割线
+      let dragging = false
+      divider.addEventListener('mousedown', function (e) {
+        dragging = true
+        document.body.style.cursor = 'ew-resize'
+      })
+      document.addEventListener('mousemove', function (e) {
+        if (!dragging) return
+        const rect = mapDiv.getBoundingClientRect()
+        let percent = (e.clientX - rect.left) / rect.width
+        percent = Math.max(0, Math.min(1, percent))
+        swipePercent = percent
+        setDividerPosition(swipePercent)
+        map.render()
+      })
+      document.addEventListener('mouseup', function () {
+        if (dragging) {
+          dragging = false
+          document.body.style.cursor = ''
+        }
+      })
+      // 窗口大小变化时调整分割线
+      window.addEventListener('resize', function () {
+        setDividerPosition(swipePercent)
+      })
+    </script>
+  </body>
+</html>

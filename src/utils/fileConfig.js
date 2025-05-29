@@ -17,7 +17,8 @@ export const directoryConfigs = [
       '测量.html',
       '坐标点定位.html',
       '电子围栏.html',
-      '弹窗.html'
+      '弹窗.html',
+      '分屏对比.html'
     ] // 预定义的文件列表
   },
   {
