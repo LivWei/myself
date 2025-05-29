@@ -18,5 +18,30 @@ export default defineConfig({
       allow: ['..'],
     },
   },
-  assetsInclude: ['**/*.html'],
+  build: {
+    // 明确指定需要复制的公共文件
+    copyPublicDir: true,
+    rollupOptions: {
+      // 指定入口点
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+      },
+      // 排除 codeHtml 目录下的 HTML 文件，避免被打包为模块
+      external: (id) => {
+        return id.includes('public/codeHtml') || (id.includes('/codeHtml/') && id.endsWith('.html'))
+      },
+      output: {
+        // 确保 public 目录下的文件被正确复制
+        assetFileNames: (assetInfo) => {
+          // 保持 HTML 文件的原始路径结构
+          if (assetInfo.name && assetInfo.name.endsWith('.html')) {
+            return '[name][extname]'
+          }
+          return 'assets/[name]-[hash][extname]'
+        },
+      },
+    },
+  },
+  // 移除 assetsInclude，避免 HTML 被当作资源处理
+  // assetsInclude: ['**/*.html'],
 })
