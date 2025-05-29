@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenLayers 天地图矢量地图 - 弹窗</title>
+    <link rel="stylesheet" href="/libs/Openlayers/ol.min.css" type="text/css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Microsoft YaHei', Arial, sans-serif;
+      }
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
+      .map-tools {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+      }
+      .map-tools button {
+        background: #1976d2;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+        transition: background 0.2s;
+      }
+      .map-tools button:hover {
+        background: #1565c0;
+      }
+      .mouse-tip {
+        position: fixed;
+        pointer-events: none;
+        background: rgba(25, 118, 210, 0.9);
+        color: #fff;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 13px;
+        z-index: 2000;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+        display: none;
+      }
+      .modal-mask {
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.25);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.2s;
+      }
+      .modal {
+        background: #fff;
+        border-radius: 10px;
+        min-width: 320px;
+        min-height: 120px;
+        box-shadow: 0 8px 32px rgba(25, 118, 210, 0.18);
+        padding: 32px 36px 24px 36px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        animation: modalIn 0.2s;
+      }
+      @keyframes modalIn {
+        from {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .modal-title {
+        font-size: 20px;
+        color: #1976d2;
+        font-weight: bold;
+        margin-bottom: 18px;
+      }
+      .modal-content {
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 18px;
+      }
+      .modal-close {
+        position: absolute;
+        right: 18px;
+        top: 14px;
+        font-size: 20px;
+        color: #aaa;
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+      .modal-close:hover {
+        color: #1976d2;
+      }
+      .ol-popup {
+        position: absolute;
+        background-color: white;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        padding: 15px 24px 15px 24px;
+        border-radius: 10px;
+        border: 1px solid #cccccc;
+        min-width: 240px;
+        min-height: 80px;
+        z-index: 3000;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 2px;
+      }
+      .ol-popup:after,
+      .ol-popup:before {
+        top: 100%;
+        border: solid transparent;
+        content: ' ';
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+      }
+      .ol-popup:after {
+        border-top-color: white;
+        border-width: 10px;
+        left: 50%;
+        margin-left: -10px;
+      }
+      .ol-popup:before {
+        border-top-color: #cccccc;
+        border-width: 11px;
+        left: 50%;
+        margin-left: -11px;
+      }
+      .ol-popup-closer {
+        text-decoration: none;
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        font-size: 20px;
+        color: #aaa;
+        cursor: pointer;
+        z-index: 10;
+      }
+      .ol-popup-closer:after {
+        content: '✖';
+      }
+      .ol-popup-closer:hover {
+        color: #1976d2;
+      }
+    </style>
+    <script src="/libs/Openlayers/ol.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="map-tools">
+      <button id="open-btn">开启</button>
+      <button id="close-btn">结束</button>
+    </div>
+    <div id="mouse-tip" class="mouse-tip"></div>
+    <div id="popup" class="ol-popup" style="display: none">
+      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+      <div id="popup-content"></div>
+    </div>
+    <script>
+      const TIANDITU_KEY = '3764ab3da844e87462f2f827afa0f9f3'
+      const WUHAN_COORDS = [114.3162, 30.581]
+      let map
+      let isActive = false
+      let mapClickListener = null
+      let overlay = null
+      let markerLayer, markerSource
+      function initMap() {
+        const vectorLayer = new ol.layer.Tile({
+          source: new ol.source.XYZ({
+            url: `http://t{0-7}.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+            wrapX: false,
+          }),
+        })
+        const vectorLabelLayer = new ol.layer.Tile({
+          source: new ol.source.XYZ({
+            url: `http://t{0-7}.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+            wrapX: false,
+          }),
+        })
+        markerSource = new ol.source.Vector()
+        markerLayer = new ol.layer.Vector({
+          source: markerSource,
+          style: new ol.style.Style({
+            image: new ol.style.Circle({
+              radius: 10,
+              fill: new ol.style.Fill({ color: '#e53935' }),
+              stroke: new ol.style.Stroke({ color: '#fff', width: 2 }),
+            }),
+          }),
+        })
+        map = new ol.Map({
+          target: 'map',
+          layers: [vectorLayer, vectorLabelLayer, markerLayer],
+          view: new ol.View({
+            center: ol.proj.fromLonLat(WUHAN_COORDS),
+            zoom: 13,
+            maxZoom: 18,
+            minZoom: 3,
+          }),
+          controls: [new ol.control.Zoom(), new ol.control.Attribution()],
+        })
+      }
+      // 鼠标提示
+      function showTip(text) {
+        const tip = document.getElementById('mouse-tip')
+        tip.innerText = text
+        tip.style.display = 'block'
+      }
+      function hideTip() {
+        const tip = document.getElementById('mouse-tip')
+        tip.style.display = 'none'
+      }
+      document.addEventListener('mousemove', function (e) {
+        const tip = document.getElementById('mouse-tip')
+        if (tip.style.display === 'block') {
+          tip.style.left = e.clientX + 16 + 'px'
+          tip.style.top = e.clientY + 8 + 'px'
+        }
+      })
+      // 弹窗控制
+      function showModal(coord) {
+        const popup = document.getElementById('popup')
+        popup.style.display = 'block'
+        if (!overlay) {
+          overlay = new ol.Overlay({
+            element: popup,
+            positioning: 'bottom-center',
+            stopEvent: true,
+            offset: [0, -10],
+          })
+          map.addOverlay(overlay)
+        }
+        overlay.setPosition(coord)
+      }
+      function hideModal() {
+        const popup = document.getElementById('popup')
+        popup.style.display = 'none'
+        if (overlay) overlay.setPosition(undefined)
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        initMap()
+        document.getElementById('open-btn').onclick = function () {
+          if (isActive) return
+          isActive = true
+          this.style.background = '#1565c0'
+          document.getElementById('close-btn').style.background = '#1976d2'
+          showTip('点击地图任意位置')
+          // 绑定地图点击事件
+          mapClickListener = function (evt) {
+            document.getElementById('popup-content').innerHTML =
+              '<div style="font-size:18px;color:#1976d2;font-weight:bold;margin-bottom:10px;">提示</div><div style="font-size:16px;color:#333;">这是一个弹窗！</div>'
+            showModal(evt.coordinate)
+          }
+          map.on('click', mapClickListener)
+        }
+        document.getElementById('close-btn').onclick = function () {
+          if (!isActive) return
+          isActive = false
+          this.style.background = '#1565c0'
+          document.getElementById('open-btn').style.background = '#1976d2'
+          hideModal()
+          if (markerSource) markerSource.clear()
+          hideTip()
+          // 解绑地图点击事件
+          if (mapClickListener) {
+            map.un('click', mapClickListener)
+            mapClickListener = null
+          }
+        }
+        document.getElementById('popup-closer').onclick = function () {
+          hideModal()
+          return false
+        }
+      })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenLayers 天地图矢量地图 - 测量</title>
+    <link rel="stylesheet" href="/libs/Openlayers/ol.min.css" type="text/css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Microsoft YaHei', Arial, sans-serif;
+      }
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
+      .map-tools {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+      }
+      .map-tools button {
+        background: #1976d2;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+        transition: background 0.2s;
+      }
+      .map-tools button:hover {
+        background: #1565c0;
+      }
+      .ol-tooltip {
+        position: absolute;
+        background: rgba(25, 118, 210, 0.9);
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 13px;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 2000;
+        box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+      }
+      .ol-tooltip-static {
+        background: #1976d2;
+        color: #fff;
+        border: 1px solid #fff;
+        font-weight: bold;
+      }
+    </style>
+    <script src="/libs/Openlayers/ol.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="map-tools">
+      <button id="measure-line-btn">测量线</button>
+      <button id="measure-area-btn">测量面</button>
+      <button id="clear-btn">清空</button>
+    </div>
+    <script>
+      const TIANDITU_KEY = '3764ab3da844e87462f2f827afa0f9f3'
+      const WUHAN_COORDS = [114.3162, 30.581]
+      let map, draw, measureLayer, measureSource
+      let helpTooltip, helpTooltipElement, measureTooltip, measureTooltipElement
+      let measureTooltips = [] // 存储所有测量结果的浮动提示
+      let sketch
+      // 格式化长度
+      function formatLength(line) {
+        const length = ol.sphere.getLength(line)
+        return length > 1000 ? (length / 1000).toFixed(2) + ' km' : length.toFixed(2) + ' m'
+      }
+      // 格式化面积
+      function formatArea(polygon) {
+        const area = ol.sphere.getArea(polygon)
+        return area > 1000000 ? (area / 1000000).toFixed(2) + ' km²' : area.toFixed(2) + ' m²'
+      }
+      // 创建浮动提示
+      function createHelpTooltip() {
+        if (helpTooltipElement) helpTooltipElement.parentNode.removeChild(helpTooltipElement)
+        helpTooltipElement = document.createElement('div')
+        helpTooltipElement.className = 'ol-tooltip'
+        document.body.appendChild(helpTooltipElement)
+        helpTooltip = new ol.Overlay({
+          element: helpTooltipElement,
+          offset: [15, 0],
+          positioning: 'center-left',
+        })
+        map.addOverlay(helpTooltip)
+      }
+      // 创建测量结果提示
+      function createMeasureTooltip() {
+        if (measureTooltipElement)
+          measureTooltipElement.parentNode.removeChild(measureTooltipElement)
+        measureTooltipElement = document.createElement('div')
+        measureTooltipElement.className = 'ol-tooltip ol-tooltip-static'
+        document.body.appendChild(measureTooltipElement)
+        measureTooltip = new ol.Overlay({
+          element: measureTooltipElement,
+          offset: [0, -15],
+          positioning: 'bottom-center',
+          stopEvent: false,
+        })
+        map.addOverlay(measureTooltip)
+        // 只在测量完成时才加入 measureTooltips
+        measureTooltips.push(measureTooltip)
+      }
+      // 清除所有测量
+      function clearMeasure() {
+        measureSource.clear()
+        map.getOverlays().clear()
+        helpTooltipElement = null
+        measureTooltipElement = null
+        measureTooltips = []
+        if (helpTooltipElement && helpTooltipElement.parentNode) {
+          helpTooltipElement.parentNode.removeChild(helpTooltipElement)
+        }
+        helpTooltipElement = null
+        measureTooltipElement = null
+      }
+      // 添加测量交互
+      function addMeasureInteraction(type) {
+        if (draw) map.removeInteraction(draw)
+        draw = new ol.interaction.Draw({
+          source: measureSource,
+          type: type,
+          style: new ol.style.Style({
+            fill: new ol.style.Fill({ color: 'rgba(25, 118, 210, 0.15)' }),
+            stroke: new ol.style.Stroke({ color: '#1976d2', width: 3 }),
+            image: new ol.style.Circle({
+              radius: 6,
+              fill: new ol.style.Fill({ color: '#1976d2' }),
+              stroke: new ol.style.Stroke({ color: '#fff', width: 2 }),
+            }),
+          }),
+        })
+        map.addInteraction(draw)
+        createHelpTooltip()
+        createMeasureTooltip()
+        let continueMsg =
+          type === 'LineString' ? '单击继续绘制，双击结束' : '单击继续绘制，双击结束面'
+        helpTooltipElement.innerHTML = '单击开始 ' + continueMsg
+        draw.on('drawstart', function (evt) {
+          sketch = evt.feature
+          let tooltipCoord = evt.coordinate
+          evt.feature.getGeometry().on('change', function (e) {
+            const geom = e.target
+            let output
+            let coord
+            if (geom instanceof ol.geom.Polygon) {
+              output = formatArea(geom)
+              coord = geom.getInteriorPoint().getCoordinates()
+            } else if (geom instanceof ol.geom.LineString) {
+              output = formatLength(geom)
+              coord = geom.getLastCoordinate()
+            }
+            measureTooltipElement.innerHTML = output
+            measureTooltip.setPosition(coord)
+            helpTooltipElement.innerHTML = continueMsg
+            helpTooltip.setPosition(coord)
+          })
+        })
+        draw.on('drawend', function () {
+          measureTooltipElement.className = 'ol-tooltip ol-tooltip-static'
+          measureTooltip.setOffset([0, -15])
+          // 将当前测量结果提示加入数组，便于后续清空
+          measureTooltips.push(measureTooltip)
+          measureTooltipElement = null
+          measureTooltip = null
+          sketch = null
+          helpTooltipElement.parentNode.removeChild(helpTooltipElement)
+          helpTooltipElement = null
+          map.removeInteraction(draw)
+        })
+      }
+      function initMap() {
+        const vectorLayer = new ol.layer.Tile({
+          source: new ol.source.XYZ({
+            url: `http://t{0-7}.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+            wrapX: false,
+          }),
+        })
+        const vectorLabelLayer = new ol.layer.Tile({
+          source: new ol.source.XYZ({
+            url: `http://t{0-7}.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+            wrapX: false,
+          }),
+        })
+        measureSource = new ol.source.Vector()
+        measureLayer = new ol.layer.Vector({
+          source: measureSource,
+          style: new ol.style.Style({
+            fill: new ol.style.Fill({ color: 'rgba(25, 118, 210, 0.08)' }),
+            stroke: new ol.style.Stroke({ color: '#1976d2', width: 2 }),
+            image: new ol.style.Circle({
+              radius: 5,
+              fill: new ol.style.Fill({ color: '#1976d2' }),
+              stroke: new ol.style.Stroke({ color: '#fff', width: 2 }),
+            }),
+          }),
+        })
+        map = new ol.Map({
+          target: 'map',
+          layers: [vectorLayer, vectorLabelLayer, measureLayer],
+          view: new ol.View({
+            center: ol.proj.fromLonLat(WUHAN_COORDS),
+            zoom: 12,
+            maxZoom: 18,
+            minZoom: 3,
+          }),
+          controls: [new ol.control.Zoom(), new ol.control.Attribution()],
+        })
+        document.getElementById('measure-line-btn').onclick = function () {
+          addMeasureInteraction('LineString')
+        }
+        document.getElementById('measure-area-btn').onclick = function () {
+          addMeasureInteraction('Polygon')
+        }
+        document.getElementById('clear-btn').onclick = function () {
+          clearMeasure()
+        }
+      }
+      document.addEventListener('DOMContentLoaded', initMap)
+    </script>
+  </body>
+</html>

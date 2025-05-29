@@ -9,7 +9,15 @@ export const directoryConfigs = [
       '加载天地图矢量地图.html',
       '加载天地图影像地图.html',
       '加载天地图地形地图.html',
-      '绘制点.html'
+      '绘制点.html',
+      '绘制线.html',
+      '绘制面.html',
+      '图形编辑.html',
+      '比例尺.html',
+      '测量.html',
+      '坐标点定位.html',
+      '电子围栏.html',
+      '弹窗.html'
     ] // 预定义的文件列表
   },
   {

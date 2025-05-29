@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenLayers 天地图矢量地图 - 绘制面</title>
+    <!-- OpenLayers CSS - 使用本地库文件 -->
+    <link rel="stylesheet" href="/libs/Openlayers/ol.min.css" type="text/css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Microsoft YaHei', Arial, sans-serif;
+      }
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
+      .map-tools {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+      }
+      .map-tools button {
+        background: #1976d2;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+        transition: background 0.2s;
+      }
+      .map-tools button:hover {
+        background: #1565c0;
+      }
+      .mouse-tip {
+        position: fixed;
+        pointer-events: none;
+        background: rgba(25, 118, 210, 0.9);
+        color: #fff;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 13px;
+        z-index: 2000;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+        display: none;
+      }
+    </style>
+    <!-- OpenLayers JavaScript - 使用本地库文件 -->
+    <script src="/libs/Openlayers/ol.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="map-tools">
+      <button id="draw-polygon-btn">绘制</button>
+      <button id="clear-polygons-btn">清空</button>
+    </div>
+    <div id="mouse-tip" class="mouse-tip"></div>
+    <script>
+      // 天地图API Key
+      const TIANDITU_KEY = '3764ab3da844e87462f2f827afa0f9f3'
+      // 武汉坐标 (经度, 纬度)
+      const WUHAN_COORDS = [114.3162, 30.581]
+      let drawMode = false
+      let drawInteraction = null
+      let polygonLayer, polygonSource
+      let map
+      // 初始化地图
+      function initMap() {
+        try {
+          if (typeof ol === 'undefined') throw new Error('OpenLayers 库加载失败')
+          // 天地图矢量图层
+          const vectorLayer = new ol.layer.Tile({
+            source: new ol.source.XYZ({
+              url: `http://t{0-7}.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+              wrapX: false,
+            }),
+          })
+          // 天地图矢量注记图层
+          const vectorLabelLayer = new ol.layer.Tile({
+            source: new ol.source.XYZ({
+              url: `http://t{0-7}.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+              wrapX: false,
+            }),
+          })
+          // 面图层
+          polygonSource = new ol.source.Vector()
+          polygonLayer = new ol.layer.Vector({
+            source: polygonSource,
+            style: new ol.style.Style({
+              stroke: new ol.style.Stroke({ color: '#1976d2', width: 3 }),
+              fill: new ol.style.Fill({ color: 'rgba(25, 118, 210, 0.25)' }),
+            }),
+          })
+          // 地图对象
+          map = new ol.Map({
+            target: 'map',
+            layers: [vectorLayer, vectorLabelLayer, polygonLayer],
+            view: new ol.View({
+              center: ol.proj.fromLonLat(WUHAN_COORDS),
+              zoom: 12,
+              maxZoom: 18,
+              minZoom: 3,
+            }),
+            controls: [new ol.control.Zoom(), new ol.control.Attribution()],
+          })
+          // 按钮事件
+          document.getElementById('draw-polygon-btn').onclick = function () {
+            if (drawMode) return
+            drawMode = true
+            this.style.background = '#1565c0'
+            showTip('单击开始绘制，单击继续添加节点，双击结束')
+            enableDraw()
+          }
+          document.getElementById('clear-polygons-btn').onclick = function () {
+            polygonSource.clear()
+            drawMode = false
+            document.getElementById('draw-polygon-btn').style.background = '#1976d2'
+            hideTip()
+            if (drawInteraction) {
+              map.removeInteraction(drawInteraction)
+              drawInteraction = null
+            }
+          }
+        } catch (error) {
+          console.error('地图初始化失败:', error)
+        }
+      }
+      // 启用绘制面交互
+      function enableDraw() {
+        if (drawInteraction) {
+          map.removeInteraction(drawInteraction)
+        }
+        drawInteraction = new ol.interaction.Draw({
+          source: polygonSource,
+          type: 'Polygon',
+          style: new ol.style.Style({
+            stroke: new ol.style.Stroke({ color: '#ff9800', width: 2 }),
+            fill: new ol.style.Fill({ color: 'rgba(255, 152, 0, 0.15)' }),
+          }),
+        })
+        map.addInteraction(drawInteraction)
+        drawInteraction.on('drawstart', function () {
+          showTip('单击继续添加节点，双击结束')
+        })
+        drawInteraction.on('drawend', function () {
+          drawMode = false
+          document.getElementById('draw-polygon-btn').style.background = '#1976d2'
+          hideTip()
+          map.removeInteraction(drawInteraction)
+          drawInteraction = null
+        })
+      }
+      // 鼠标提示
+      function showTip(text) {
+        const tip = document.getElementById('mouse-tip')
+        tip.innerText = text
+        tip.style.display = 'block'
+      }
+      function hideTip() {
+        const tip = document.getElementById('mouse-tip')
+        tip.style.display = 'none'
+      }
+      document.addEventListener('mousemove', function (e) {
+        const tip = document.getElementById('mouse-tip')
+        if (tip.style.display === 'block') {
+          tip.style.left = e.clientX + 16 + 'px'
+          tip.style.top = e.clientY + 8 + 'px'
+        }
+      })
+      // 页面加载完成后初始化地图
+      document.addEventListener('DOMContentLoaded', initMap)
+    </script>
+  </body>
+</html>
