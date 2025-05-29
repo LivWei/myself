@@ -20,7 +20,8 @@ export const directoryConfigs = [
       '弹窗.html',
       '分屏对比.html',
       '多屏联动.html',
-      '加载GeoJSON数据.html'
+      '加载GeoJSON数据.html',
+      '海量点加载.html'
     ] // 预定义的文件列表
   },
   {
