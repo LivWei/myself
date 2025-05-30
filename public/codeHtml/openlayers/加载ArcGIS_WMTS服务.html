@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenLayers 加载ArcGIS WMTS服务</title>
+    <!-- OpenLayers CSS - 使用本地库文件 -->
+    <link rel="stylesheet" href="/libs/Openlayers/ol.min.css" type="text/css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Microsoft YaHei', Arial, sans-serif;
+      }
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
+    </style>
+    <!-- OpenLayers JavaScript - 使用本地库文件 -->
+    <script src="/libs/Openlayers/ol.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      // ArcGIS WMTS服务元数据地址
+      const WMTS_CAPABILITIES_URL =
+        'https://services.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/WMTS/1.0.0/WMTSCapabilities.xml'
+
+      // 初始化地图
+      function initMap() {
+        try {
+          if (typeof ol === 'undefined') {
+            throw new Error('OpenLayers 库加载失败')
+          }
+
+          // 创建地图对象（先不加图层）
+          const map = new ol.Map({
+            target: 'map',
+            layers: [],
+            view: new ol.View({
+              center: ol.proj.fromLonLat([0, 20]), // 先给个大致中心
+              zoom: 2,
+              minZoom: 1,
+              maxZoom: 19,
+            }),
+            controls: [new ol.control.Zoom(), new ol.control.Attribution()],
+          })
+
+          // 请求WMTS元数据并自动加载图层
+          fetch(WMTS_CAPABILITIES_URL)
+            .then((response) => response.text())
+            .then((text) => {
+              const parser = new ol.format.WMTSCapabilities()
+              const result = parser.read(text)
+              const layerInfo = result.Contents.Layer[0]
+
+              // 打印TileMatrixSet和Layer信息
+              console.log('TileMatrixSet:', result.Contents.TileMatrixSet)
+              console.log('Layer:', result.Contents.Layer)
+
+              // 自动选择合适的 matrixSet
+              const matrixSet =
+                layerInfo.TileMatrixSetLink.find(
+                  (link) =>
+                    link.TileMatrixSet === 'default028mm' ||
+                    link.TileMatrixSet === 'GoogleMapsCompatible',
+                )?.TileMatrixSet || layerInfo.TileMatrixSetLink[0].TileMatrixSet
+
+              console.log('使用的 matrixSet:', matrixSet)
+
+              const options = ol.source.WMTS.optionsFromCapabilities(result, {
+                layer: layerInfo.Identifier,
+                matrixSet: matrixSet,
+              })
+
+              // 强制 projection
+              options.projection = 'EPSG:3857'
+              console.log('WMTS options:', options)
+
+              const wmtsLayer = new ol.layer.Tile({
+                source: new ol.source.WMTS(options),
+              })
+              map.addLayer(wmtsLayer)
+
+              // 打印图层和视图信息
+              console.log('wmtsLayer visible:', wmtsLayer.getVisible())
+              console.log('map layers:', map.getLayers().getArray())
+              console.log('wmtsLayer source:', wmtsLayer.getSource())
+              console.log('view projection:', map.getView().getProjection().getCode())
+
+              // 强制fit到全球范围
+              map
+                .getView()
+                .fit(ol.proj.transformExtent([-180, -85, 180, 85], 'EPSG:4326', 'EPSG:3857'), {
+                  duration: 1000,
+                })
+
+              // 自动定位到图层范围（可选）
+              if (layerInfo.WGS84BoundingBox) {
+                const extent = [
+                  layerInfo.WGS84BoundingBox[0][0],
+                  layerInfo.WGS84BoundingBox[0][1],
+                  layerInfo.WGS84BoundingBox[1][0],
+                  layerInfo.WGS84BoundingBox[1][1],
+                ]
+                console.log('WGS84BoundingBox extent:', extent)
+              }
+              console.log('ArcGIS WMTS服务加载完成')
+            })
+            .catch((err) => {
+              console.error('WMTS服务加载失败:', err)
+            })
+        } catch (error) {
+          console.error('地图初始化失败:', error)
+        }
+      }
+      document.addEventListener('DOMContentLoaded', initMap)
+    </script>
+  </body>
+</html>

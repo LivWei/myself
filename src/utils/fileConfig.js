@@ -26,7 +26,8 @@ export const directoryConfigs = [
       '叠加图标示例.html',
       '缓冲区分析.html',
       '鹰眼.html',
-      '坐标转换.html'
+      '坐标转换.html',
+      '加载ArcGIS_WMTS服务.html'
     ] // 预定义的文件列表
   },
   {
