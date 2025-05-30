@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>缓冲区分析示例 - 天地图+OpenLayers+turf.js</title>
+    <link rel="stylesheet" href="/libs/Openlayers/ol.min.css" type="text/css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Microsoft YaHei', Arial, sans-serif;
+      }
+      #map {
+        width: 100vw;
+        height: 100vh;
+      }
+      .buffer-card {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        z-index: 10;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        padding: 16px 20px;
+        min-width: 220px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    </style>
+    <script src="/libs/Openlayers/ol.min.js"></script>
+    <script src="/libs/turf.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="buffer-card">
+      <span>缓冲区距离：</span>
+      <input
+        id="buffer-distance"
+        type="number"
+        min="1"
+        max="10000"
+        value="100"
+        style="width: 60px"
+      />
+      <span>m</span>
+      <button id="buffer-btn">确定</button>
+    </div>
+    <script>
+      const TIANDITU_KEY = '3764ab3da844e87462f2f827afa0f9f3'
+      // 北京坐标
+      const CENTER = [116.391193, 39.907776]
+      // 初始化点、线、面（调整距离）
+      const point = turf.point(CENTER)
+      const line = turf.lineString([
+        [116.36, 39.89],
+        [116.42, 39.93],
+      ])
+      const polygon = turf.polygon([
+        [
+          [116.38, 39.92],
+          [116.43, 39.92],
+          [116.405, 39.96],
+          [116.38, 39.92],
+        ],
+      ])
+      let bufferLayers = []
+      // 创建天地图矢量图层
+      const vectorLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: `http://t{0-7}.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+          wrapX: false,
+        }),
+      })
+      // 创建天地图矢量注记图层
+      const vectorLabelLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: `http://t{0-7}.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+          wrapX: false,
+        }),
+      })
+      // 创建矢量图层用于点线面
+      const geojsonFormat = new ol.format.GeoJSON()
+      const featureSource = new ol.source.Vector({
+        features: [
+          geojsonFormat.readFeature(point, { featureProjection: 'EPSG:3857' }),
+          geojsonFormat.readFeature(line, { featureProjection: 'EPSG:3857' }),
+          geojsonFormat.readFeature(polygon, { featureProjection: 'EPSG:3857' }),
+        ],
+      })
+      const featureLayer = new ol.layer.Vector({
+        source: featureSource,
+        style: function (feature) {
+          const type = feature.getGeometry().getType()
+          if (type === 'Point') {
+            return new ol.style.Style({
+              image: new ol.style.Circle({ radius: 8, fill: new ol.style.Fill({ color: 'red' }) }),
+            })
+          } else if (type === 'LineString') {
+            return new ol.style.Style({ stroke: new ol.style.Stroke({ color: 'blue', width: 3 }) })
+          } else {
+            return new ol.style.Style({
+              stroke: new ol.style.Stroke({ color: 'green', width: 2 }),
+              fill: new ol.style.Fill({ color: 'rgba(0,255,0,0.2)' }),
+            })
+          }
+        },
+      })
+      // 初始化地图
+      const map = new ol.Map({
+        target: 'map',
+        layers: [vectorLayer, vectorLabelLayer, featureLayer],
+        view: new ol.View({
+          center: ol.proj.fromLonLat(CENTER),
+          zoom: 13,
+          maxZoom: 18,
+          minZoom: 3,
+        }),
+        controls: [new ol.control.Zoom(), new ol.control.Attribution()],
+      })
+      // 缓冲区分析
+      function showBuffer() {
+        // 移除旧缓冲区
+        bufferLayers.forEach((l) => map.removeLayer(l))
+        bufferLayers = []
+        const distance = Number(document.getElementById('buffer-distance').value)
+        const features = [point, line, polygon]
+        features.forEach((f) => {
+          const buffered = turf.buffer(f, distance, { units: 'meters' })
+          const bufferFeature = geojsonFormat.readFeature(buffered, {
+            featureProjection: 'EPSG:3857',
+          })
+          const bufferLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({ features: [bufferFeature] }),
+            style: new ol.style.Style({
+              stroke: new ol.style.Stroke({ color: 'orange', width: 2 }),
+              fill: new ol.style.Fill({ color: 'rgba(255,165,0,0.2)' }),
+            }),
+          })
+          map.addLayer(bufferLayer)
+          bufferLayers.push(bufferLayer)
+        })
+      }
+      document.getElementById('buffer-btn').onclick = showBuffer
+    </script>
+  </body>
+</html>
