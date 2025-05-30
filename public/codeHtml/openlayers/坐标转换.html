@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>坐标转换示例 - 天地图+OpenLayers</title>
+    <link rel="stylesheet" href="/libs/Openlayers/ol.min.css" type="text/css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Microsoft YaHei', Arial, sans-serif;
+      }
+      #map {
+        width: 100vw;
+        height: 100vh;
+      }
+      .coord-card {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        z-index: 10;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        padding: 18px 24px;
+        min-width: 320px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .coord-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .coord-row label {
+        min-width: 80px;
+        font-weight: bold;
+      }
+      .coord-row input {
+        width: 160px;
+        padding: 2px 6px;
+      }
+      .coord-row button {
+        margin-left: 8px;
+      }
+    </style>
+    <script src="/libs/Openlayers/ol.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="coord-card">
+      <div class="coord-row">
+        <label>经纬度：</label>
+        <input id="lnglat" type="text" value="116.391193,39.907776" />
+        <button onclick="convertFrom('lnglat')">转换</button>
+      </div>
+      <div class="coord-row">
+        <label>Web墨卡托：</label>
+        <input id="mercator" type="text" value="" readonly />
+      </div>
+      <div class="coord-row">
+        <label>GCJ-02：</label>
+        <input id="gcj02" type="text" value="" readonly />
+      </div>
+      <div class="coord-row">
+        <label>百度BD-09：</label>
+        <input id="bd09" type="text" value="" readonly />
+      </div>
+    </div>
+    <script>
+      // 天地图API Key
+      const TIANDITU_KEY = '3764ab3da844e87462f2f827afa0f9f3'
+      // 默认中心点（北京）
+      const CENTER = [116.391193, 39.907776]
+      // 主地图天地图矢量图层
+      const vectorLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: `http://t{0-7}.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+          wrapX: false,
+        }),
+      })
+      // 主地图天地图矢量注记图层
+      const vectorLabelLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: `http://t{0-7}.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+          wrapX: false,
+        }),
+      })
+      // 初始化地图
+      const map = new ol.Map({
+        target: 'map',
+        layers: [vectorLayer, vectorLabelLayer],
+        view: new ol.View({
+          center: ol.proj.fromLonLat(CENTER),
+          zoom: 12,
+          maxZoom: 18,
+          minZoom: 3,
+        }),
+        controls: ol.control.defaults.defaults(),
+      })
+
+      // 坐标转换相关函数
+      // WGS84 <-> Web墨卡托
+      function lngLatToMercator(lng, lat) {
+        return ol.proj.fromLonLat([lng, lat])
+      }
+      function mercatorToLngLat(x, y) {
+        return ol.proj.toLonLat([x, y])
+      }
+      // WGS84 <-> GCJ-02
+      // GCJ-02 <-> BD-09
+      // 下面是常用的火星坐标与百度坐标转换算法
+      // 参考：https://github.com/wandergis/coordtransform
+      const PI = Math.PI
+      function outOfChina(lng, lat) {
+        return lng < 72.004 || lng > 137.8347 || lat < 0.8293 || lat > 55.8271
+      }
+      function transformLat(x, y) {
+        let ret =
+          -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x))
+        ret += ((20.0 * Math.sin(6.0 * x * PI) + 20.0 * Math.sin(2.0 * x * PI)) * 2.0) / 3.0
+        ret += ((20.0 * Math.sin(y * PI) + 40.0 * Math.sin((y / 3.0) * PI)) * 2.0) / 3.0
+        ret += ((160.0 * Math.sin((y / 12.0) * PI) + 320 * Math.sin((y * PI) / 30.0)) * 2.0) / 3.0
+        return ret
+      }
+      function transformLng(x, y) {
+        let ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x))
+        ret += ((20.0 * Math.sin(6.0 * x * PI) + 20.0 * Math.sin(2.0 * x * PI)) * 2.0) / 3.0
+        ret += ((20.0 * Math.sin(x * PI) + 40.0 * Math.sin((x / 3.0) * PI)) * 2.0) / 3.0
+        ret += ((150.0 * Math.sin((x / 12.0) * PI) + 300.0 * Math.sin((x / 30.0) * PI)) * 2.0) / 3.0
+        return ret
+      }
+      function wgs84ToGcj02(lng, lat) {
+        if (outOfChina(lng, lat)) return [lng, lat]
+        let dlat = transformLat(lng - 105.0, lat - 35.0)
+        let dlng = transformLng(lng - 105.0, lat - 35.0)
+        const radlat = (lat / 180.0) * PI
+        let magic = Math.sin(radlat)
+        magic = 1 - 0.00669342162296594323 * magic * magic
+        const sqrtMagic = Math.sqrt(magic)
+        dlat = (dlat * 180.0) / (((6335552.717000426 * magic) / (sqrtMagic * sqrtMagic)) * PI)
+        dlng = (dlng * 180.0) / ((6378245.0 / sqrtMagic) * Math.cos(radlat) * PI)
+        const mglat = lat + dlat
+        const mglng = lng + dlng
+        return [mglng, mglat]
+      }
+      function gcj02ToWgs84(lng, lat) {
+        if (outOfChina(lng, lat)) return [lng, lat]
+        let dlat = transformLat(lng - 105.0, lat - 35.0)
+        let dlng = transformLng(lng - 105.0, lat - 35.0)
+        const radlat = (lat / 180.0) * PI
+        let magic = Math.sin(radlat)
+        magic = 1 - 0.00669342162296594323 * magic * magic
+        const sqrtMagic = Math.sqrt(magic)
+        dlat = (dlat * 180.0) / (((6335552.717000426 * magic) / (sqrtMagic * sqrtMagic)) * PI)
+        dlng = (dlng * 180.0) / ((6378245.0 / sqrtMagic) * Math.cos(radlat) * PI)
+        const mglat = lat - dlat
+        const mglng = lng - dlng
+        return [mglng, mglat]
+      }
+      function gcj02ToBd09(lng, lat) {
+        const z = Math.sqrt(lng * lng + lat * lat) + 0.00002 * Math.sin((lat * PI * 3000.0) / 180.0)
+        const theta = Math.atan2(lat, lng) + 0.000003 * Math.cos((lng * PI * 3000.0) / 180.0)
+        const bd_lng = z * Math.cos(theta) + 0.0065
+        const bd_lat = z * Math.sin(theta) + 0.006
+        return [bd_lng, bd_lat]
+      }
+      function bd09ToGcj02(bd_lng, bd_lat) {
+        const x = bd_lng - 0.0065
+        const y = bd_lat - 0.006
+        const z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin((y * PI * 3000.0) / 180.0)
+        const theta = Math.atan2(y, x) - 0.000003 * Math.cos((x * PI * 3000.0) / 180.0)
+        const gg_lng = z * Math.cos(theta)
+        const gg_lat = z * Math.sin(theta)
+        return [gg_lng, gg_lat]
+      }
+      // 主转换函数
+      function convertFrom(type) {
+        // 始终以经纬度为源
+        let lnglat = document.getElementById('lnglat').value.split(',').map(Number)
+        const [lng, lat] = lnglat
+        let merc = lngLatToMercator(lng, lat)
+        let gcj = wgs84ToGcj02(lng, lat)
+        let bd = gcj02ToBd09(gcj[0], gcj[1])
+        document.getElementById('mercator').value = merc.map((x) => x.toFixed(2)).join(',')
+        document.getElementById('gcj02').value = gcj.map((x) => x.toFixed(6)).join(',')
+        document.getElementById('bd09').value = bd.map((x) => x.toFixed(6)).join(',')
+      }
+      // 页面加载后自动填充所有坐标
+      window.onload = function () {
+        convertFrom('lnglat')
+      }
+    </script>
+  </body>
+</html>

@@ -25,7 +25,8 @@ export const directoryConfigs = [
       '点击获取坐标.html',
       '叠加图标示例.html',
       '缓冲区分析.html',
-      '鹰眼.html'
+      '鹰眼.html',
+      '坐标转换.html'
     ] // 预定义的文件列表
   },
   {
