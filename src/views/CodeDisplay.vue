@@ -36,7 +36,7 @@
       <div class="preview-container" :style="{ width: previewWidth + 'px' }">
         <CodePreview
           :fileType="selectedFile?.type"
-          :code="currentCode"
+          :code="previewCode"
           :consoleLogs="consoleLogs"
           ref="previewRef"
         />
@@ -55,6 +55,7 @@ import CodePreview from '../components/CodePreview.vue'
 // 响应式状态
 const selectedFile = ref<CodeExample | null>(null)
 const currentCode = ref('')
+const previewCode = ref('')
 const consoleLogs = ref<string[]>([])
 
 // 拖拽调整宽度相关状态
@@ -83,8 +84,8 @@ const handleFileSelected = (file: CodeExample) => {
   currentCode.value = file.code
   // 清空控制台日志
   consoleLogs.value = []
-
-  // 文件选择处理完成
+  // 自动运行代码
+  handleRunCode(file.code, file.type)
 }
 
 /**
@@ -92,7 +93,7 @@ const handleFileSelected = (file: CodeExample) => {
  * @param code 更新后的代码内容
  */
 const handleCodeChanged = (code: string) => {
-  // 同步更新当前代码内容
+  // 只更新编辑器内容，不影响预览
   currentCode.value = code
 }
 
@@ -110,6 +111,8 @@ const handleCopyCode = () => {
  * @param fileType 文件类型
  */
 const handleRunCode = (code: string, fileType: string) => {
+  // 新增：点击运行时才更新预览区内容
+  previewCode.value = code
   // 清空之前的控制台输出
   consoleLogs.value = []
 
@@ -275,7 +278,7 @@ onMounted(() => {
     // 获取默认要显示的文件
     const defaultFile = sidebarRef.value.getDefaultFile()
     if (defaultFile) {
-      // 选择并显示默认文件
+      // 选择并显示默认文件，并自动运行
       handleFileSelected(defaultFile)
     }
   }
