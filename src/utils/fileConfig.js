@@ -24,7 +24,8 @@ export const directoryConfigs = [
       '海量点加载.html',
       '点击获取坐标.html',
       '叠加图标示例.html',
-      '缓冲区分析.html'
+      '缓冲区分析.html',
+      '鹰眼.html'
     ] // 预定义的文件列表
   },
   {

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>天地图矢量+鹰眼控件示例</title>
+    <link rel="stylesheet" href="/libs/Openlayers/ol.min.css" type="text/css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Microsoft YaHei', Arial, sans-serif;
+      }
+      #map {
+        width: 100vw;
+        height: 100vh;
+      }
+      /* 自定义鹰眼控件样式，右下角显示 */
+      .ol-custom-overviewmap,
+      .ol-custom-overviewmap.ol-uncollapsible {
+        bottom: 0;
+        left: auto;
+        right: 0;
+        top: auto;
+      }
+      .ol-custom-overviewmap:not(.ol-collapsed) {
+        border: 1px solid #aaa;
+        background: #fff;
+      }
+      .ol-custom-overviewmap .ol-overviewmap-map {
+        border: none;
+        width: 220px;
+        height: 120px;
+      }
+      .ol-custom-overviewmap .ol-overviewmap-box {
+        border: 2px solid #f60;
+      }
+      .ol-custom-overviewmap:not(.ol-collapsed) button {
+        bottom: auto;
+        left: auto;
+        right: 1px;
+        top: 1px;
+      }
+    </style>
+    <script src="/libs/Openlayers/ol.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      // 天地图API Key
+      const TIANDITU_KEY = '3764ab3da844e87462f2f827afa0f9f3'
+      // 默认中心点（北京）
+      const CENTER = [116.391193, 39.907776]
+
+      // 主地图天地图矢量图层
+      const vectorLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: `http://t{0-7}.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+          wrapX: false,
+        }),
+      })
+      // 主地图天地图矢量注记图层
+      const vectorLabelLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: `http://t{0-7}.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+          wrapX: false,
+        }),
+      })
+      // 鹰眼控件的底图图层（只用矢量主图层即可）
+      const overviewVectorLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: `http://t{0-7}.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
+          wrapX: false,
+        }),
+      })
+      // 创建鹰眼控件
+      const overviewMapControl = new ol.control.OverviewMap({
+        className: 'ol-overviewmap ol-custom-overviewmap',
+        layers: [overviewVectorLayer],
+        collapseLabel: '\u00BB',
+        label: '\u00AB',
+        collapsed: false,
+      })
+      // 初始化地图
+      const map = new ol.Map({
+        target: 'map',
+        layers: [vectorLayer, vectorLabelLayer],
+        view: new ol.View({
+          center: ol.proj.fromLonLat(CENTER),
+          zoom: 12,
+          maxZoom: 18,
+          minZoom: 3,
+        }),
+        controls: ol.control.defaults.defaults().extend([overviewMapControl]),
+      })
+    </script>
+  </body>
+</html>
