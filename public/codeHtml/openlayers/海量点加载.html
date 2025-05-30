@@ -94,7 +94,7 @@
       let currentLayer = null
       let pointData = []
 
-      // 生成100万个点的数据
+      // 生成10万个点的数据
       function generateRandomPoints(count) {
         const points = []
         for (let i = 0; i < count; i++) {
@@ -137,7 +137,7 @@
             const webglLayer = new ol.layer.WebGLPoints({
               source: new ol.source.Vector({
                 features: pointData.map((coord) => {
-                  // 加载全部100万点
+                  // 加载全部10万点
                   return new ol.Feature({
                     geometry: new ol.geom.Point(ol.proj.fromLonLat(coord)),
                   })
@@ -161,7 +161,7 @@
 
             currentLayer = webglLayer
             map.addLayer(webglLayer)
-            updateStatus('WebGL图层加载完成 - 已加载100万点')
+            updateStatus('WebGL图层加载完成 - 已加载10万点')
           } catch (error) {
             updateStatus('WebGL图层加载失败: ' + error.message)
           }
@@ -196,8 +196,8 @@
               },
             })
 
-            // 分片加载点数据 - 加载全部100万点
-            loadPointsInChunks(canvasLayer, 0, 50000) // 每次加载5万点，提高效率
+            // 分片加载点数据 - 加载全部10万点
+            loadPointsInChunks(canvasLayer, 0, 10000) // 每次加载1万点，提高效率
 
             currentLayer = canvasLayer
             map.addLayer(canvasLayer)
@@ -231,7 +231,7 @@
             loadPointsInChunks(layer, endIndex, chunkSize)
           }, 10) // 减少延迟，加快加载速度
         } else {
-          updateStatus('Canvas分片加载完成 - 已加载100万点')
+          updateStatus('Canvas分片加载完成 - 已加载10万点')
         }
       }
 
@@ -248,7 +248,7 @@
             if (operation === 'cluster') {
               // 简单的网格聚合算法
               const clusters = {}
-              const gridSize = 0.05 // 减小网格大小，适应100万点
+              const gridSize = 0.1 // 调整网格大小，适应10万点
               
               points.forEach(point => {
                 const gridX = Math.floor(point[0] / gridSize)
@@ -287,9 +287,9 @@
             }
           }
 
-          // 发送数据给Worker处理 - 处理全部100万点
+          // 发送数据给Worker处理 - 处理全部10万点
           worker.postMessage({
-            points: pointData, // 处理全部100万点
+            points: pointData, // 处理全部10万点
             operation: 'cluster',
           })
         } catch (error) {
@@ -329,7 +329,7 @@
 
         currentLayer = workerLayer
         map.addLayer(workerLayer)
-        updateStatus(`Web Worker处理完成 - 处理100万点生成${clusters.length}个聚合点`)
+        updateStatus(`Web Worker处理完成 - 处理10万点生成${clusters.length}个聚合点`)
       }
 
       // 原始方案
@@ -338,10 +338,10 @@
         updateStatus('正在加载原始聚合方案...')
 
         setTimeout(() => {
-          // 创建点的矢量源 - 加载全部100万点
+          // 创建点的矢量源 - 加载全部10万点
           const pointSource = new ol.source.Vector({
             features: pointData.map((coord) => {
-              // 加载全部100万点
+              // 加载全部10万点
               return new ol.Feature({
                 geometry: new ol.geom.Point(ol.proj.fromLonLat(coord)),
               })
@@ -375,7 +375,7 @@
 
           currentLayer = clusterLayer
           map.addLayer(clusterLayer)
-          updateStatus('原始聚合方案加载完成 - 已加载100万点')
+          updateStatus('原始聚合方案加载完成 - 已加载10万点')
         }, 100)
       }
 
@@ -387,7 +387,7 @@
 
         // 生成测试数据
         updateStatus('正在生成测试数据...')
-        pointData = generateRandomPoints(1000000) // 生成100万点数据
+        pointData = generateRandomPoints(100000) // 生成10万点数据
         updateStatus('测试数据生成完成')
 
         // 天地图矢量图层
