@@ -123,6 +123,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import openlayersImg from '../../assets/openlayers.png'
+import cesiumImg from '../../assets/cesium.png'
 import { directoryConfigs } from '../../utils/fileConfig.js'
 
 interface Project {
@@ -155,13 +156,13 @@ const projects: Project[] = [
   },
   {
     id: 2,
-    title: '企业管理系统',
-    description: 'React和Java构建的企业级管理系统',
-    fullDescription:
-      '为中大型企业打造的综合管理系统，包含人事管理、财务管理、项目管理等多个模块，提供完整的企业运营解决方案。',
-    image: 'https://via.placeholder.com/300x200/059669/ffffff?text=企业管理',
-    technologies: ['React', 'Java', 'Spring Boot', 'PostgreSQL'],
-    features: ['人事管理', '财务管理', '项目管理', '权限控制', '数据分析'],
+    title: 'cesium',
+    description: 'cesium示例',
+    fullDescription: '这是一个cesium示例。',
+    image: cesiumImg,
+    technologies: ['cesium', 'turf'],
+    features: ['定位', '天地图', '经纬度投影', '...'],
+    demoUrl: '/cesium',
   },
   {
     id: 3,
