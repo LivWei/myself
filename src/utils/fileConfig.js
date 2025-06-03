@@ -30,11 +30,6 @@ export const directoryConfigs = [
       '加载ArcGIS_WMTS服务.html',
       '加载超图wfs服务.html'
     ] // 预定义的文件列表
-  },
-  {
-    name: 'cesium',
-    displayName: 'Cesium 示例',
-    files: ['加载天地图（经纬度投影）影像图层.html']
   }
 ]
 

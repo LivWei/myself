@@ -60,15 +60,6 @@
                     <el-icon><Link /></el-icon>
                     演示
                   </el-button>
-                  <el-button
-                    type="default"
-                    size="small"
-                    @click.stop="viewCode(project)"
-                    class="action-btn btn-click hover-lift"
-                  >
-                    <el-icon><Document /></el-icon>
-                    代码
-                  </el-button>
                 </div>
               </div>
             </el-card>
@@ -131,6 +122,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import openlayersImg from '../../assets/openlayers.png'
+import { directoryConfigs } from '../../utils/fileConfig.js'
 
 interface Project {
   id: number
@@ -147,16 +140,18 @@ interface Project {
 const dialogVisible = ref(false)
 const selectedProject = ref<Project | null>(null)
 
+const openlayersConfig = directoryConfigs.find((cfg) => cfg.name === 'openlayers')
+
 const projects: Project[] = [
   {
     id: 1,
-    title: '电商平台',
-    description: '基于Vue3和Node.js的现代化电商平台',
-    fullDescription:
-      '这是一个功能完整的电商平台，包含用户管理、商品管理、订单处理、支付集成等核心功能。采用微服务架构，支持高并发访问。',
-    image: 'https://via.placeholder.com/300x200/4f46e5/ffffff?text=电商平台',
-    technologies: ['Vue3', 'Node.js', 'MySQL', 'Redis'],
-    features: ['用户注册登录', '商品浏览购买', '订单管理', '支付集成', '后台管理'],
+    title: 'openlayers',
+    description: 'openlayers示例',
+    fullDescription: '这是一个openlayers示例。',
+    image: openlayersImg,
+    technologies: ['openlayers', 'turf'],
+    features: openlayersConfig ? openlayersConfig.files : [],
+    demoUrl: '/code-display',
   },
   {
     id: 2,
@@ -242,14 +237,6 @@ const viewDemo = (project: Project | null) => {
     window.open(project.demoUrl, '_blank')
   } else {
     console.log('查看演示:', project?.title)
-  }
-}
-
-const viewCode = (project: Project) => {
-  if (project.codeUrl) {
-    window.open(project.codeUrl, '_blank')
-  } else {
-    console.log('查看代码:', project.title)
   }
 }
 </script>
@@ -406,6 +393,8 @@ const viewCode = (project: Project) => {
 .feature-list {
   list-style: none;
   padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .feature-list li {
