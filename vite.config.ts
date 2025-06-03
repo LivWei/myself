@@ -17,6 +17,13 @@ export default defineConfig({
       // 允许访问 src 目录下的文件
       allow: ['..'],
     },
+    proxy: {
+      '/wfs': {
+        target: 'https://webgis.cn',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/wfs/, '/cgi-bin/mapserv?map=/owg/mfw1.map'),
+      },
+    },
   },
   build: {
     // 明确指定需要复制的公共文件

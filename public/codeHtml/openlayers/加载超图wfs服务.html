@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenLayers 加载超图WFS服务</title>
+    <!-- OpenLayers CSS - 使用本地库文件 -->
+    <link rel="stylesheet" href="/libs/Openlayers/ol.min.css" type="text/css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Microsoft YaHei', Arial, sans-serif;
+      }
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
+    </style>
+    <!-- OpenLayers JavaScript - 使用本地库文件 -->
+    <script src="/libs/Openlayers/ol.min.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      // WFS服务元数据地址
+      const isDev = location.ancestorOrigins[0].includes('localhost')
+      const BASE_URL = isDev
+        ? 'http://localhost:5173'
+        : 'https://webgis.cn/cgi-bin/mapserv?map=/owg/mfw1.map'
+      const WFS_CAPABILITIES_URL =
+        BASE_URL + '/wfs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetCapabilities'
+
+      // 初始化地图
+      function initMap() {
+        try {
+          if (typeof ol === 'undefined') {
+            throw new Error('OpenLayers 库加载失败')
+          }
+
+          // 创建地图对象（先不加图层）
+          const map = new ol.Map({
+            target: 'map',
+            layers: [],
+            view: new ol.View({
+              center: ol.proj.fromLonLat([0, 20]), // 先给个大致中心
+              zoom: 2,
+              minZoom: 1,
+              maxZoom: 19,
+            }),
+            controls: [new ol.control.Zoom(), new ol.control.Attribution()],
+          })
+          // 请求WFS元数据并自动加载要素
+          fetch(WFS_CAPABILITIES_URL)
+            .then((response) => response.text())
+            .then((text) => {
+              const parserXML = new window.DOMParser().parseFromString(text, 'text/xml')
+              const featureTypeList = parserXML.getElementsByTagName('FeatureTypeList')[0]
+              if (!featureTypeList) throw new Error('未找到 FeatureTypeList 节点，WFS服务响应异常')
+              const featureTypes = featureTypeList.getElementsByTagName('FeatureType')
+              if (!featureTypes.length) throw new Error('未找到 FeatureType 节点，WFS服务响应异常')
+              const firstFeatureType = featureTypes[0]
+              const nameNode = firstFeatureType.getElementsByTagName('Name')[0]
+              if (!nameNode) {
+                return
+              }
+              const name = nameNode.textContent
+              // 先找 FeatureType 下的 ows:WGS84BoundingBox
+              const wgs84Bbox = firstFeatureType.getElementsByTagName('ows:WGS84BoundingBox')[0]
+              if (!wgs84Bbox) {
+                return
+              }
+
+              // 再找 ows:LowerCorner 和 ows:UpperCorner
+              const lowerCornerNode = wgs84Bbox.getElementsByTagName('ows:LowerCorner')[0]
+              const upperCornerNode = wgs84Bbox.getElementsByTagName('ows:UpperCorner')[0]
+              if (!lowerCornerNode || !upperCornerNode) {
+                return
+              }
+
+              const lowerCorner = lowerCornerNode.textContent
+              const upperCorner = upperCornerNode.textContent
+
+              const extent = [
+                parseFloat(lowerCorner.split(' ')[0]),
+                parseFloat(lowerCorner.split(' ')[1]),
+                parseFloat(upperCorner.split(' ')[0]),
+                parseFloat(upperCorner.split(' ')[1]),
+              ]
+
+              // 构造WFS GetFeature请求URL
+              const wfsUrl =
+                BASE_URL +
+                '/wfs&SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=' +
+                encodeURIComponent(name) +
+                '&outputFormat=application/json' +
+                '&maxFeatures=10' // 兼容旧服务
+              // 加载WFS要素图层
+              const vectorSource = new ol.source.Vector({
+                format: new ol.format.GeoJSON(),
+                url: wfsUrl,
+                strategy: ol.loadingstrategy.bbox,
+              })
+              const vectorLayer = new ol.layer.Vector({
+                source: vectorSource,
+                style: new ol.style.Style({
+                  stroke: new ol.style.Stroke({ color: '#0078FF', width: 2 }),
+                  fill: new ol.style.Fill({ color: 'rgba(0,120,255,0.1)' }),
+                }),
+              })
+              map.addLayer(vectorLayer)
+
+              // 定位到服务范围
+              map.getView().fit(extent, { duration: 1000, padding: [40, 40, 40, 40] })
+            })
+            .catch((err) => {})
+        } catch (error) {}
+      }
+      document.addEventListener('DOMContentLoaded', initMap)
+    </script>
+  </body>
+</html>
