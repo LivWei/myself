@@ -1,0 +1,38 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 代码规范
+
+## 命名规范
+- 变量、函数使用小驼峰命名（如：userName、getData）。
+- 类、组件使用大驼峰命名（如：UserCard、MainLayout）。
+- 常量使用全大写下划线分隔（如：API_URL、MAX_COUNT）。
+
+## 文件与目录结构
+- 组件、模块建议独立文件夹，包含 index.ts(x)/js(x) 和样式文件。
+- 文件名统一使用小写字母和中划线（如：user-list.tsx、main-header.ts）。
+
+## 注释规范
+- 复杂逻辑需添加注释，注释应简洁明了。
+- 函数、类、重要模块建议使用 JSDoc 风格注释。
+
+## 代码格式化
+- 使用 Prettier 统一格式化，遵循 .prettierrc.json 配置。
+- 每行不超过 120 字符。
+- 使用 2 或 4 空格缩进（根据项目配置）。
+
+## 最佳实践
+- 避免魔法数字，使用常量替代。
+- 组件尽量无副作用，优先使用函数式组件。
+- 类型声明优先使用 TypeScript 类型/接口。
+- 尽量使用解构赋值，提升代码可读性。
+- 禁止直接操作 DOM，优先使用框架 API。
+
+## 其他
+- 严格遵循 ESLint 规则，保持代码整洁。
+- 提交前请确保无报错和警告。
+
+如需详细规范，请参考 [eslint.config.ts](mdc:eslint.config.ts) 和 [prettierrc.json](mdc:.prettierrc.json)。
+

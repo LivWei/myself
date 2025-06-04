@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 项目结构说明
+
+本项目的主要结构如下：
+
+- [index.html](mdc:index.html)：项目主入口 HTML 文件。
+- [src/](mdc:src)：主要的源代码目录，包含所有前端代码。
+- [public/](mdc:public)：公共资源文件夹，存放静态资源。
+- [dist/](mdc:dist)：构建输出目录，存放打包后的文件。
+- [package.json](mdc:package.json)：项目依赖和脚本配置文件。
+- [vite.config.ts](mdc:vite.config.ts)：Vite 构建工具的配置文件。
+- [README.md](mdc:README.md)：项目说明文档。
+
+如需详细了解各部分内容，可参考对应文件。
+
