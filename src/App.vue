@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import { StagewiseToolbar } from '@stagewise/toolbar-vue'
+
+const config = { plugins: [] }
+const isDev = import.meta.env.MODE === 'development'
 </script>
 
 <template>
+  <StagewiseToolbar v-if="isDev" :config="config" />
   <RouterView />
 </template>
 

@@ -68,7 +68,7 @@ const scrollToSection = (sectionId: string) => {
 <style scoped>
 .portfolio-header {
   width: 100%;
-  background: rgba(59, 130, 246, 0.8);
+  background: #000;
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   position: fixed;
