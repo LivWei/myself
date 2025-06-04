@@ -4,6 +4,7 @@
       {{ item }}
     </div>
   </div>
+  <CesiumDraw v-if="showDraw" />
 </template>
 
 <script lang="ts">
@@ -11,7 +12,11 @@ export default { name: 'CesiumBtns' }
 </script>
 
 <script setup lang="ts">
-const layers = ['矢量', '影像']
+import { ref } from 'vue'
+import CesiumDraw from './Draw.vue'
+
+const showDraw = ref(false)
+const layers = ['矢量', '影像', '绘制']
 const TIANDITU_KEY = '3764ab3da844e87462f2f827afa0f9f3'
 // @ts-expect-error: 通过 script 全局引入 Cesium
 const Cesium = window.Cesium
@@ -54,6 +59,8 @@ const currentLayer = (value: string) => {
       }),
     )
     window.viewer.imageryLayers.add(imgLayer)
+  } else if (value === '绘制') {
+    showDraw.value = true
   }
 }
 </script>

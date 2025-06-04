@@ -63,6 +63,11 @@ onMounted(() => {
 
   window.viewer = viewer
 
+  // 禁止双击缩放
+  viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
+    Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK,
+  )
+
   // 鼠标右键旋转视角，滚轮拖动为平移
   if (viewer) {
     viewer.scene.screenSpaceCameraController.tiltEventTypes = [Cesium.CameraEventType.RIGHT_DRAG]
