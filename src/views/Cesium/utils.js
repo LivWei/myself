@@ -243,3 +243,60 @@ export default class CesiumDynamicDrawer {
 //
 // // 清除
 // drawer.clear();
+
+// ================= 自定义Shader雨特效 =================
+
+/**
+ * 使用自定义Shader实现雨特效（异步加载 public 下的 rain.glsl）
+ * @param {Object} viewer Cesium.Viewer 实例
+ * @param {Object} options 雨特效选项
+ * @param {number} options.rainSpeed 雨速（默认1.0）
+ * @param {number} options.rainSize 雨滴大小（默认1.0）
+ * @returns {Promise<any>} 返回雨特效对象，后续可用于清除
+ */
+export async function addCustomRain(viewer, options = {}) {
+  if (!viewer) return null;
+  const {
+    speed = 40.0,      // 大雨更快
+    density = 12.0,    // 大雨更密
+    falloff = 35.0,
+    angle = 15.0,
+    thickness = 0.02,  // 新增参数，默认大雨更粗
+  } = options;
+
+  // 动态加载 public 下的 rain.glsl
+  const res = await fetch('/Shader/rain.glsl');
+  const shader = (await res.text()).trimStart();
+
+  const rainStage = new Cesium.PostProcessStage({
+    name: 'czm_custom_rain',
+    fragmentShader: shader,
+    uniforms: {
+      speed,
+      density,
+      falloff,
+      angle,
+      thickness, // 新增
+    }
+  });
+  viewer.scene.postProcessStages.add(rainStage);
+  return rainStage;
+}
+
+
+/**
+ * 清除自定义雨特效
+ * @param {Object} viewer Cesium.Viewer 实例
+ * @param {any} stage 雨特效对象
+ */
+export function removeCustomRain(viewer, stage) {
+  if (viewer && stage) {
+    viewer.scene.postProcessStages.remove(stage);
+  }
+}
+
+// ================= 自定义Shader雨特效使用示例 =================
+// import { addCustomRain, removeCustomRain } from './utils';
+//
+// let rainStage = addCustomRain(viewer, { rainSpeed: 1.5, rainSize: 1.2 });
+// removeCustomRain(viewer, rainStage);
