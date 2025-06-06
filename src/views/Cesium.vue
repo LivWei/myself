@@ -73,6 +73,8 @@ onMounted(() => {
     viewer.scene.screenSpaceCameraController.tiltEventTypes = [Cesium.CameraEventType.RIGHT_DRAG]
     viewer.scene.screenSpaceCameraController.panningMode = Cesium.CameraEventType.MIDDLE_DRAG
   }
+
+  viewer.scene.globe.depthTestAgainstTerrain = true
 })
 
 onBeforeUnmount(() => {

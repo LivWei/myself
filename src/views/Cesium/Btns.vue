@@ -4,8 +4,9 @@
       {{ item }}
     </div>
   </div>
-  <CesiumDraw v-if="showDraw" />
-  <CesiumRain v-if="showRain" />
+  <CesiumDraw v-if="showMore === 'draw'" />
+  <CesiumRain v-if="showMore === 'rain'" />
+  <CesiumDistance v-if="showMore === 'distance'" />
 </template>
 
 <script lang="ts">
@@ -16,10 +17,10 @@ export default { name: 'CesiumBtns' }
 import { ref } from 'vue'
 import CesiumDraw from './Draw.vue'
 import CesiumRain from './Rain.vue'
+import CesiumDistance from './Distance.vue'
 
-const showDraw = ref(false)
-const showRain = ref(false)
-const layers = ['矢量', '影像', '绘制', '下雨']
+const showMore = ref('')
+const layers = ['矢量', '影像', '绘制', '下雨', '测量']
 const TIANDITU_KEY = '3764ab3da844e87462f2f827afa0f9f3'
 // @ts-expect-error: 通过 script 全局引入 Cesium
 const Cesium = window.Cesium
@@ -63,9 +64,11 @@ const currentLayer = (value: string) => {
     )
     window.viewer.imageryLayers.add(imgLayer)
   } else if (value === '绘制') {
-    showDraw.value = true
+    showMore.value = 'draw'
   } else if (value === '下雨') {
-    showRain.value = true
+    showMore.value = 'rain'
+  } else if (value === '测量') {
+    showMore.value = 'distance'
   }
 }
 </script>

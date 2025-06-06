@@ -13,9 +13,13 @@
 
 <script setup lang="ts">
 defineOptions({ name: 'CesiumDraw' })
-import CesiumDynamicDrawer from './utils'
+import CesiumDynamicDrawer from './cesiumCtrl/draw'
+// @ts-expect-error: no type declaration file for CesiumDynamicDrawer
+// eslint-disable-next-line
+import type { CesiumDynamicDrawer as CesiumDynamicDrawerType } from './cesiumCtrl/draw'
 
-const drawItems = [
+type DrawType = 'point' | 'polyline' | 'polygon' | 'clear'
+const drawItems: { name: string; type: DrawType }[] = [
   {
     name: '绘制点',
     type: 'point',
@@ -34,9 +38,10 @@ const drawItems = [
   },
 ]
 
-const drawer = new CesiumDynamicDrawer(window.viewer)
+// eslint-disable-next-line
+const drawer: any = new CesiumDynamicDrawer((window as any).viewer)
 
-const handleDraw = (item: string) => {
+const handleDraw = (item: DrawType) => {
   if (item === 'clear') {
     drawer.clear()
   } else {

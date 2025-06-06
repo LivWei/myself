@@ -13,8 +13,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue'
-import { addCustomRain, removeCustomRain } from './utils'
-import { el } from 'element-plus/es/locales.mjs'
+import { addCustomRain, removeCustomRain } from './cesiumCtrl/rain'
 
 defineOptions({ name: 'CesiumRain' })
 
@@ -41,30 +40,31 @@ async function handleRain(type: string) {
   if (!viewer) return
   if (type === 'clear') return
 
-  let options = {}
+  let options: { rainSpeed: number; rainSize: number; tiltAngle: number }
   if (type === 'light') {
     options = {
-      speed: 12.0, // 慢
-      density: 2.5, // 稀疏
-      falloff: 38.0, // 更细长
-      angle: 18.0, // 角度大
-      thickness: 0.009, // 更细
+      rainSpeed: 80.0, // 慢
+      rainSize: 0.18, // 小雨
+      tiltAngle: 0.5, // 倾斜
     }
   } else if (type === 'moderate') {
     options = {
-      speed: 28.0, // 适中
-      density: 7.0, // 适中
-      falloff: 32.0, // 适中
-      angle: 14.0, // 适中
-      thickness: 0.016, // 适中
+      rainSpeed: 60.0, // 适中
+      rainSize: 0.28, // 中雨
+      tiltAngle: 0.3, // 适中
     }
   } else if (type === 'heavy') {
     options = {
-      speed: 48.0, // 快
-      density: 16.0, // 密集
-      falloff: 25.0, // 更短更密
-      angle: 10.0, // 角度小
-      thickness: 0.028, // 更粗
+      rainSpeed: 40.0, // 快
+      rainSize: 0.38, // 大雨
+      tiltAngle: 0.1, // 直落
+    }
+  } else {
+    // 默认参数，防止 options 未定义
+    options = {
+      rainSpeed: 60.0,
+      rainSize: 0.28,
+      tiltAngle: 0.3,
     }
   }
   rainStage = await addCustomRain(viewer, options)
