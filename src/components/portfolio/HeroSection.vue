@@ -96,8 +96,13 @@
 
 <script setup lang="ts">
 const downloadResume = () => {
-  // 这里可以添加下载简历的逻辑
-  console.log('下载简历')
+  // 触发下载 public 目录下的 PDF 文件
+  const link = document.createElement('a')
+  link.href = '/刘威-前端-本科.pdf'
+  link.download = '刘威-前端-本科.pdf'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 
 const scrollToContact = () => {

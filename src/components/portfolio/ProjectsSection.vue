@@ -51,7 +51,7 @@
                   </el-tag>
                 </div>
 
-                <div class="project-actions">
+                <div class="project-actions" v-if="project.demoUrl">
                   <el-button
                     type="primary"
                     size="small"
