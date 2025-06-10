@@ -27,7 +27,8 @@
               data-animation="fadeInUp"
             >
               <div class="project-image">
-                <img :src="project.image" :alt="project.title" />
+                <img v-if="project.image" :src="project.image" :alt="project.title" />
+                <img v-else src="@/assets/default.png" alt="placeholder" />
                 <div class="project-overlay">
                   <el-button type="primary" circle class="overlay-btn">
                     <el-icon><View /></el-icon>
@@ -122,9 +123,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import openlayersImg from '../../assets/openlayers.png'
-import cesiumImg from '../../assets/cesium.png'
-import { directoryConfigs } from '../../utils/fileConfig.js'
 
 interface Project {
   id: number
@@ -141,85 +139,100 @@ interface Project {
 const dialogVisible = ref(false)
 const selectedProject = ref<Project | null>(null)
 
-const openlayersConfig = directoryConfigs.find((cfg) => cfg.name === 'openlayers')
-
 const projects: Project[] = [
   {
     id: 1,
-    title: 'openlayers',
-    description: 'openlayers示例',
-    fullDescription: '这是一个openlayers示例。',
-    image: openlayersImg,
-    technologies: ['openlayers', 'turf'],
-    features: openlayersConfig ? openlayersConfig.files : [],
-    demoUrl: '/code-display',
+    title: '广东省块数据平台',
+    description: '前端负责人 | 2024/7 - 2025/6',
+    fullDescription:
+      '参与需求分析与设计，主导前端通用模板、登录、二三维地图模块开发，对接一网共享平台单点登录及多种地图服务，优化行政区划数据加载，封装openlayers地图功能，开发安全预警小程序。',
+    image: new URL('@/assets/块数据平台.png', import.meta.url).href,
+    technologies: ['Vue2', 'OpenLayers', 'Leaflet', 'Cesium', 'Taro', 'Web Worker'],
+    features: [
+      '通用模板搭建',
+      '单点登录对接',
+      '多地图服务集成',
+      '行政区划数据懒加载',
+      'openlayers地图功能封装',
+      '安全预警小程序开发',
+    ],
+    demoUrl: '',
   },
   {
     id: 2,
-    title: 'cesium',
-    description: 'cesium示例',
-    fullDescription: '这是一个cesium示例。',
-    image: cesiumImg,
-    technologies: ['cesium', 'turf'],
-    features: ['定位', '天地图', '经纬度投影', '...'],
-    demoUrl: '/cesium',
+    title: '黄冈时空大数据平台',
+    description: '前端负责人 | 2023/4 - 2024/7',
+    fullDescription:
+      '主导三维分析、专题制图、定位飞行测量等功能开发，负责多端地图App开发，支持离线切片、加密解密等。',
+    image: new URL('@/assets/时空大数据平台.png', import.meta.url).href,
+    technologies: ['Vue2', 'Cesium', 'Leaflet', 'Uni-app'],
+    features: [
+      '三维分析功能',
+      '专题制图',
+      '定位飞行测量',
+      '多端地图App',
+      '离线切片加载',
+      '切片加密解密',
+    ],
+    demoUrl: '',
   },
   {
     id: 3,
-    title: '移动应用',
-    description: 'Flutter开发的跨平台移动应用',
+    title: '国土基础信息平台+“一张图”实施监督信息系统',
+    description: '前端负责人 | 2022/5 - 2023/4',
     fullDescription:
-      '使用Flutter框架开发的跨平台移动应用，支持iOS和Android双平台，提供流畅的用户体验和丰富的功能。',
-    image: 'https://via.placeholder.com/300x200/dc2626/ffffff?text=移动应用',
-    technologies: ['Flutter', 'Dart', 'Firebase'],
-    features: ['跨平台支持', '实时通讯', '离线缓存', '推送通知', '社交分享'],
+      '搭建vue2+cesium基础框架，封装三维地图基础方法，开发分析评价、成果审查、监测预警等子系统，支撑多地项目验收。',
+    image: new URL('@/assets/国基.png', import.meta.url).href,
+    technologies: ['Vue2', 'Cesium', 'OpenLayers'],
+    features: [
+      '三维地图基础方法封装',
+      '分析评价子系统',
+      '成果审查子系统',
+      '监测预警子系统',
+      '多地项目支撑',
+    ],
+    demoUrl: '',
   },
   {
     id: 4,
-    title: '数据分析平台',
-    description: 'Python和机器学习构建的数据分析平台',
+    title: '原圈营销云SaaS系统',
+    description: '前端开发 | 2020/8 - 2022/5',
     fullDescription:
-      '基于Python和机器学习技术的数据分析平台，提供数据可视化、预测分析、智能报告等功能。',
-    image: 'https://via.placeholder.com/300x200/7c3aed/ffffff?text=数据分析',
-    technologies: ['Python', 'TensorFlow', 'Django', 'MongoDB'],
-    features: ['数据可视化', '机器学习', '预测分析', '自动报告', 'API接口'],
+      '主力开发客户资产管理、低代码平台等模块，封装element-ui表格、阿里云上传组件和各类工具函数。',
+    image: '',
+    technologies: ['Vue', 'Element-UI', '阿里云'],
+    features: ['客户资产管理模块', '低代码平台模块', '表格与上传组件封装', '工具函数封装'],
+    demoUrl: '',
   },
   {
     id: 5,
-    title: '区块链项目',
-    description: 'Solidity智能合约开发项目',
-    fullDescription:
-      '基于以太坊的去中心化应用，包含智能合约开发、DeFi功能、NFT交易等区块链核心功能。',
-    image: 'https://via.placeholder.com/300x200/f59e0b/ffffff?text=区块链',
-    technologies: ['Solidity', 'Web3.js', 'Ethereum', 'IPFS'],
-    features: ['智能合约', 'DeFi功能', 'NFT交易', '去中心化存储', '代币经济'],
+    title: '原圈CRM移动端',
+    description: '前端开发 | 2020/8 - 2022/5',
+    fullDescription: '全权负责移动端开发，集成微信SDK，封装公共组件和echarts，提升开发效率。',
+    image: '',
+    technologies: ['Vue', 'Vant', 'Echarts', '微信SDK'],
+    features: ['移动端全权开发', '微信SDK集成', '公共组件封装', 'echarts封装'],
+    demoUrl: '',
   },
   {
     id: 6,
-    title: 'AI智能助手',
-    description: 'TensorFlow构建的人工智能助手',
-    fullDescription: '基于深度学习的智能助手系统，支持自然语言处理、语音识别、图像识别等AI功能。',
-    image: 'https://via.placeholder.com/300x200/10b981/ffffff?text=AI助手',
-    technologies: ['TensorFlow', 'Python', 'NLP', 'OpenAI'],
-    features: ['自然语言处理', '语音识别', '图像识别', '智能对话', '学习能力'],
+    title: '湖北城乡垃圾治理举报平台小程序',
+    description: '前端开发 | 2018/6 - 2020/8',
+    fullDescription: '独立开发小程序前端，优化数据展示与交互体验。',
+    image: '',
+    technologies: ['小程序', 'Vue'],
+    features: ['小程序独立开发', '数据展示优化', '交互体验优化'],
+    demoUrl: '',
   },
   {
     id: 7,
-    title: '物联网平台',
-    description: 'C++和嵌入式开发的物联网平台',
-    fullDescription: '面向工业4.0的物联网平台，支持设备接入、数据采集、远程控制、智能分析等功能。',
-    image: 'https://via.placeholder.com/300x200/8b5cf6/ffffff?text=物联网',
-    technologies: ['C++', '嵌入式', 'MQTT', 'InfluxDB'],
-    features: ['设备管理', '数据采集', '远程控制', '实时监控', '智能分析'],
-  },
-  {
-    id: 8,
-    title: '游戏开发',
-    description: 'Unity和C#开发的3D游戏',
-    fullDescription: '使用Unity引擎开发的3D动作游戏，包含完整的游戏机制、关卡设计、角色系统等。',
-    image: 'https://via.placeholder.com/300x200/ef4444/ffffff?text=游戏开发',
-    technologies: ['Unity', 'C#', '3D建模', 'Photon'],
-    features: ['3D渲染', '物理引擎', '多人联机', '关卡编辑', '角色系统'],
+    title: '智慧珠海综合服务平台',
+    description: '前端开发 | 2016/6 - 2018/6',
+    fullDescription: '负责平台前端开发，积累大屏可视化开发经验。',
+    image: '',
+    technologies: ['Vue', 'BI', '大屏可视化'],
+    features: ['大屏可视化开发', '平台前端开发'],
+    demoUrl: '',
   },
 ]
 

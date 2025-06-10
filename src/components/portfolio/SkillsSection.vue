@@ -154,50 +154,44 @@ interface SkillTag {
 }
 
 const frontendSkills: Skill[] = [
-  { name: 'Vue.js', level: 95, color: '#4fc08d' },
-  { name: 'React', level: 90, color: '#61dafb' },
-  { name: 'TypeScript', level: 88, color: '#3178c6' },
-  { name: 'JavaScript', level: 95, color: '#f7df1e' },
+  { name: 'Vue', level: 95, color: '#4fc08d' },
+  { name: 'React', level: 85, color: '#61dafb' },
+  { name: 'Express', level: 70, color: '#000' },
   { name: 'HTML5/CSS3', level: 92, color: '#e34f26' },
+  { name: 'JavaScript(ES6+)', level: 95, color: '#f7df1e' },
 ]
 
 const backendSkills: Skill[] = [
-  { name: 'Node.js', level: 90, color: '#339933' },
-  { name: 'Java', level: 85, color: '#ed8b00' },
-  { name: 'Python', level: 88, color: '#3776ab' },
-  { name: 'C#', level: 80, color: '#239120' },
-  { name: 'Go', level: 75, color: '#00add8' },
+  { name: '地图开发(leaflet/openlayers/cesium)', level: 90, color: '#2d8cf0' },
+  { name: 'Node.js', level: 70, color: '#339933' },
+  { name: 'Express', level: 70, color: '#000' },
 ]
 
 const databaseSkills: Skill[] = [
-  { name: 'MySQL', level: 85, color: '#4479a1' },
-  { name: 'MongoDB', level: 82, color: '#47a248' },
-  { name: 'Redis', level: 80, color: '#dc382d' },
-  { name: 'PostgreSQL', level: 78, color: '#336791' },
+  { name: '工程化(Webpack/Vite/Rollup/Babel/ESLint)', level: 90, color: '#fca311' },
+  { name: '性能优化', level: 85, color: '#e63946' },
+  { name: '版本控制(Git/SVN)', level: 90, color: '#24292e' },
 ]
 
 const cloudSkills: Skill[] = [
-  { name: 'AWS', level: 80, color: '#ff9900' },
-  { name: 'Docker', level: 85, color: '#2496ed' },
-  { name: 'Kubernetes', level: 75, color: '#326ce5' },
-  { name: 'Nginx', level: 82, color: '#009639' },
+  { name: '多端开发(PC/桌面/移动/小程序)', level: 85, color: '#00bcd4' },
+  { name: '技术管理', level: 80, color: '#8e44ad' },
+  { name: 'AI技能(Cursor/ChatGPT/Gemeni)', level: 80, color: '#ff9800' },
 ]
 
 const skillTags: SkillTag[] = [
-  { name: 'Git', type: 'primary', size: 'large' },
-  { name: 'Webpack', type: 'success', size: 'default' },
-  { name: 'Vite', type: 'info', size: 'default' },
-  { name: 'Jest', type: 'warning', size: 'small' },
-  { name: 'Cypress', type: 'danger', size: 'small' },
-  { name: 'GraphQL', type: 'primary', size: 'default' },
-  { name: 'REST API', type: 'success', size: 'large' },
-  { name: 'Microservices', type: 'info', size: 'default' },
-  { name: 'Agile', type: 'warning', size: 'default' },
-  { name: 'Scrum', type: 'danger', size: 'small' },
-  { name: 'CI/CD', type: 'primary', size: 'default' },
-  { name: 'Linux', type: 'success', size: 'default' },
-  { name: 'Figma', type: 'info', size: 'small' },
-  { name: 'Photoshop', type: 'warning', size: 'small' },
+  { name: 'turf', type: 'primary', size: 'default' },
+  { name: 'proj4', type: 'success', size: 'default' },
+  { name: 'wkt', type: 'info', size: 'default' },
+  { name: 'echarts', type: 'warning', size: 'default' },
+  { name: 'html2canvas', type: 'danger', size: 'default' },
+  { name: 'jspdf', type: 'primary', size: 'default' },
+  { name: 'element-ui', type: 'success', size: 'default' },
+  { name: 'vant', type: 'info', size: 'default' },
+  { name: 'logicflow', type: 'warning', size: 'default' },
+  { name: 'dayjs', type: 'danger', size: 'default' },
+  { name: 'Sass/Less', type: 'primary', size: 'default' },
+  { name: 'TailwindCSS', type: 'success', size: 'default' },
 ]
 </script>
 

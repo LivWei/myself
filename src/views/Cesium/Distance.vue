@@ -52,6 +52,15 @@ const startCtrlArea = () => {
   distanceMeasurer.startDrawing('ctrlArea')
 }
 
+const startTriangleMeasure = () => {
+  const viewer = getViewer()
+  if (!viewer) return
+  if (!distanceMeasurer) {
+    distanceMeasurer = new CesiumDistanceMeasurer(viewer)
+  }
+  distanceMeasurer.startDrawing('triangle')
+}
+
 const clearMeasure = () => {
   if (distanceMeasurer) {
     distanceMeasurer.clear()
@@ -63,6 +72,7 @@ const measureItems = [
   { name: '空间距离', action: startSpaceMeasure },
   { name: '贴地面积', action: startClampArea },
   { name: '水平面积', action: startCtrlArea },
+  { name: '三角测量', action: startTriangleMeasure },
   { name: '清除', action: clearMeasure },
 ]
 

@@ -8,13 +8,13 @@ export default class CesiumDistanceMeasurer {
     this.entity = null;
     this.handler = null;
     this.tooltipDiv = null;
-    this.drawType = null; // 'clampDistance' | 'ctrlDistance' | 'clampArea' | 'ctrlArea'
+    this.drawType = null; // 'clampDistance' | 'ctrlDistance' | 'clampArea' | 'ctrlArea' | 'triangle'
     this.clampToGround = false;
     this._distanceLabels = [];
   }
 
   /**
-   * @param {'clampDistance'|'ctrlDistance'|'clampArea'|'ctrlArea'} type
+   * @param {'clampDistance'|'ctrlDistance'|'clampArea'|'ctrlArea'|'triangle'} type
    * @param {Object} options
    * @param {boolean} options.clampToGround 是否贴地
    */
@@ -82,6 +82,40 @@ export default class CesiumDistanceMeasurer {
       }
       this._endDrawing();
     }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+
+    // 三角测量
+    if (this.drawType === 'triangle') {
+      let trianglePositions = [];
+      let triangleEntity = null;
+      let vLabel = null, hLabel = null, sLabel = null;
+      this.handler.setInputAction((movement) => {
+        const cartesian = this._getCatesian3FromScreen(movement.position);
+        if (!cartesian) return;
+        if (trianglePositions.length === 0) {
+          trianglePositions.push(cartesian.clone());
+          trianglePositions.push(cartesian.clone());
+        } else if (trianglePositions.length === 2) {
+          trianglePositions[1] = cartesian.clone();
+        }
+        this._drawTriangleEntity(trianglePositions, triangleEntity, vLabel, hLabel, sLabel, (e, v, h, s) => {
+          triangleEntity = e; vLabel = v; hLabel = h; sLabel = s;
+        });
+      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+      this.handler.setInputAction((movement) => {
+        const cartesian = this._getCatesian3FromScreen(movement.endPosition);
+        if (!cartesian) return;
+        if (trianglePositions.length === 2) {
+          trianglePositions[1] = cartesian;
+        }
+        this._drawTriangleEntity(trianglePositions, triangleEntity, vLabel, hLabel, sLabel, (e, v, h, s) => {
+          triangleEntity = e; vLabel = v; hLabel = h; sLabel = s;
+        });
+      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+      this.handler.setInputAction(() => {
+        this._endDrawing();
+      }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+      return;
+    }
   }
 
   _drawEntity() {
@@ -363,5 +397,103 @@ export default class CesiumDistanceMeasurer {
       area += x1 * y2 - x2 * y1;
     }
     return Math.abs(area / 2.0);
+  }
+
+  _drawTriangleEntity(trianglePositions, triangleEntity, vLabel, hLabel, sLabel, setEntities) {
+    // 清除旧实体
+    if (triangleEntity) this.viewer.entities.remove(triangleEntity);
+    if (vLabel) this.viewer.entities.remove(vLabel);
+    if (hLabel) this.viewer.entities.remove(hLabel);
+    if (sLabel) this.viewer.entities.remove(sLabel);
+    if (!trianglePositions || trianglePositions.length < 2) return;
+    const p1 = trianglePositions[0];
+    const p2 = trianglePositions[1];
+    if (!p1 || !p2) return;
+    // 计算三角形三个点
+    const carto1 = Cesium.Ellipsoid.WGS84.cartesianToCartographic(p1);
+    const carto2 = Cesium.Ellipsoid.WGS84.cartesianToCartographic(p2);
+    const height1 = carto1.height;
+    const height2 = carto2.height;
+    let bottom, top, zPoint;
+    if (height1 > height2) {
+      bottom = p2;
+      top = p1;
+      zPoint = Cesium.Cartesian3.fromRadians(carto2.longitude, carto2.latitude, height1);
+    } else {
+      bottom = p1;
+      top = p2;
+      zPoint = Cesium.Cartesian3.fromRadians(carto1.longitude, carto1.latitude, height2);
+    }
+    // 三角形路径
+    const trianglePath = [bottom, zPoint, top, bottom];
+    triangleEntity = this.viewer.entities.add({
+      polyline: {
+        positions: trianglePath,
+        width: 3,
+        material: Cesium.Color.ORANGE,
+        clampToGround: false,
+      },
+    });
+    // 计算距离
+    const vDistance = Math.abs(height2 - height1);
+    const sDistance = Cesium.Cartesian3.distance(p1, p2);
+    const hDistance = Cesium.Cartesian3.distance(zPoint, top);
+    // label 位置
+    const midV = Cesium.Cartesian3.midpoint(bottom, zPoint, new Cesium.Cartesian3());
+    const midH = Cesium.Cartesian3.midpoint(zPoint, top, new Cesium.Cartesian3());
+    const midS = Cesium.Cartesian3.midpoint(p1, p2, new Cesium.Cartesian3());
+    // label 文本
+    const vText = `垂直距离：${vDistance.toFixed(2)} 米`;
+    const hText = `水平距离：${hDistance.toFixed(2)} 米`;
+    const sText = `空间距离：${sDistance.toFixed(2)} 米`;
+    vLabel = this.viewer.entities.add({
+      position: midV,
+      label: {
+        text: vText,
+        font: '16px sans-serif',
+        fillColor: Cesium.Color.YELLOW,
+        outlineColor: Cesium.Color.BLACK,
+        outlineWidth: 2,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        pixelOffset: new Cesium.Cartesian2(0, -20),
+        heightReference: Cesium.HeightReference.NONE,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        backgroundColor: Cesium.Color.BLACK.withAlpha(0.8),
+        showBackground: true
+      }
+    });
+    hLabel = this.viewer.entities.add({
+      position: midH,
+      label: {
+        text: hText,
+        font: '16px sans-serif',
+        fillColor: Cesium.Color.YELLOW,
+        outlineColor: Cesium.Color.BLACK,
+        outlineWidth: 2,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        pixelOffset: new Cesium.Cartesian2(0, -20),
+        heightReference: Cesium.HeightReference.NONE,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        backgroundColor: Cesium.Color.BLACK.withAlpha(0.8),
+        showBackground: true
+      }
+    });
+    sLabel = this.viewer.entities.add({
+      position: midS,
+      label: {
+        text: sText,
+        font: '16px sans-serif',
+        fillColor: Cesium.Color.YELLOW,
+        outlineColor: Cesium.Color.BLACK,
+        outlineWidth: 2,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        pixelOffset: new Cesium.Cartesian2(0, -20),
+        heightReference: Cesium.HeightReference.NONE,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        backgroundColor: Cesium.Color.BLACK.withAlpha(0.8),
+        showBackground: true
+      }
+    });
+    setEntities(triangleEntity, vLabel, hLabel, sLabel);
   }
 }

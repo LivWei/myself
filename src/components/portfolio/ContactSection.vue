@@ -20,7 +20,7 @@
                 </div>
                 <div class="contact-content">
                   <h4>邮箱</h4>
-                  <p>your.email@example.com</p>
+                  <p>893624020@qq.com</p>
                 </div>
               </div>
 
@@ -30,7 +30,7 @@
                 </div>
                 <div class="contact-content">
                   <h4>电话</h4>
-                  <p>+86 138-xxxx-xxxx</p>
+                  <p>13618608720</p>
                 </div>
               </div>
 
@@ -40,7 +40,7 @@
                 </div>
                 <div class="contact-content">
                   <h4>位置</h4>
-                  <p>北京市朝阳区</p>
+                  <p>湖北省武汉市</p>
                 </div>
               </div>
 
@@ -49,8 +49,8 @@
                   <el-icon><Link /></el-icon>
                 </div>
                 <div class="contact-content">
-                  <h4>GitHub</h4>
-                  <p>github.com/yourusername</p>
+                  <h4>个人主页</h4>
+                  <p>https://myself-63w.pages.dev/</p>
                 </div>
               </div>
             </div>

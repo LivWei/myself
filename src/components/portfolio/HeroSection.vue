@@ -9,19 +9,18 @@
                 >你好，我是</el-text
               >
               <el-text class="name scroll-animate" data-animation="fadeInRight" data-delay="2s"
-                >张三</el-text
+                >刘威</el-text
               >
             </h1>
             <h2 class="hero-subtitle scroll-animate" data-animation="fadeInUp" data-delay="3s">
-              高级软件工程师
+              前端开发工程师
             </h2>
             <p class="hero-description scroll-animate" data-animation="fadeInUp" data-delay="4s">
-              拥有10年丰富的软件开发经验，专注于全栈开发、架构设计和团队管理。
-              精通Vue.js、React、Node.js等现代技术栈，致力于构建高质量的软件产品。
+              擅长Vue、React等主流前端框架，精通地图开发与工程化，具备丰富的团队管理和大型项目经验。热衷于技术创新与效率提升，致力于打造高质量的前端产品。
             </p>
             <div class="hero-stats scroll-animate" data-animation="fadeInUp" data-delay="5s">
               <div class="stat-item scroll-animate" data-animation="zoomIn" data-delay="6s">
-                <el-statistic :value="10" suffix="年">
+                <el-statistic :value="9" suffix="年">
                   <template #title>
                     <div style="display: inline-flex; align-items: center; color: #fff">
                       <el-icon style="margin-right: 4px"><Timer /></el-icon>
@@ -31,11 +30,11 @@
                 </el-statistic>
               </div>
               <div class="stat-item scroll-animate" data-animation="zoomIn" data-delay="7s">
-                <el-statistic :value="50" suffix="+">
+                <el-statistic :value="10" suffix="+">
                   <template #title>
                     <div style="display: inline-flex; align-items: center; color: #fff">
                       <el-icon style="margin-right: 4px"><Folder /></el-icon>
-                      完成项目
+                      主要项目
                     </div>
                   </template>
                 </el-statistic>
@@ -45,7 +44,7 @@
                   <template #title>
                     <div style="display: inline-flex; align-items: center; color: #fff">
                       <el-icon style="margin-right: 4px"><Trophy /></el-icon>
-                      技术栈
+                      技能标签
                     </div>
                   </template>
                 </el-statistic>
