@@ -15,9 +15,6 @@
     <!-- 工作经历时间线 -->
     <ExperienceSection />
 
-    <!-- 联系方式 -->
-    <ContactSection />
-
     <!-- 页脚 -->
     <PortfolioFooter />
   </div>
@@ -29,7 +26,6 @@ import HeroSection from '@/components/portfolio/HeroSection.vue'
 import ProjectsSection from '@/components/portfolio/ProjectsSection.vue'
 import SkillsSection from '@/components/portfolio/SkillsSection.vue'
 import ExperienceSection from '@/components/portfolio/ExperienceSection.vue'
-import ContactSection from '@/components/portfolio/ContactSection.vue'
 import PortfolioFooter from '@/components/portfolio/PortfolioFooter.vue'
 import { useScrollAnimation } from '@/composables/useScrollAnimation'
 

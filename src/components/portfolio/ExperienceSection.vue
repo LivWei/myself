@@ -4,7 +4,7 @@
       <div class="section-header">
         <h2 class="section-title scroll-animate" data-animation="fadeInUp">工作经历</h2>
         <p class="section-subtitle scroll-animate" data-animation="fadeInUp" data-delay="1s">
-          10年职业发展历程与成长轨迹
+          9年职业发展历程与成长轨迹
         </p>
       </div>
 

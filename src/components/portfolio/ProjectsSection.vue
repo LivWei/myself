@@ -50,18 +50,6 @@
                     {{ tech }}
                   </el-tag>
                 </div>
-
-                <div class="project-actions" v-if="project.demoUrl">
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click.stop="viewDemo(project)"
-                    class="action-btn btn-click hover-glow"
-                  >
-                    <el-icon><Link /></el-icon>
-                    演示
-                  </el-button>
-                </div>
               </div>
             </el-card>
           </el-col>
@@ -81,10 +69,12 @@
         <el-row :gutter="20">
           <el-col :xs="24" :md="12">
             <img
+              v-if="selectedProject.image"
               :src="selectedProject.image"
               :alt="selectedProject.title"
               class="detail-image animate__animated animate__zoomIn"
             />
+            <img v-else src="@/assets/default.png" alt="placeholder" />
           </el-col>
           <el-col :xs="24" :md="12">
             <div class="detail-content animate__animated animate__fadeInRight">
@@ -112,9 +102,6 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false" class="dialog-btn">关闭</el-button>
-          <el-button type="primary" @click="viewDemo(selectedProject)" class="dialog-btn">
-            查看演示
-          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -245,14 +232,6 @@ const handleClose = () => {
   dialogVisible.value = false
   selectedProject.value = null
 }
-
-const viewDemo = (project: Project | null) => {
-  if (project?.demoUrl) {
-    window.open(project.demoUrl, '_blank')
-  } else {
-    console.log('查看演示:', project?.title)
-  }
-}
 </script>
 
 <style scoped>
@@ -370,20 +349,6 @@ const viewDemo = (project: Project | null) => {
 .tech-tag {
   margin-right: 8px;
   margin-bottom: 4px;
-}
-
-.project-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.action-btn {
-  transition: all 0.3s ease;
-}
-
-.action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
 }
 
 .detail-image {

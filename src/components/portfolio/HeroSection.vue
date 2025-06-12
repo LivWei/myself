@@ -60,26 +60,13 @@
                 <el-icon><Download /></el-icon>
                 下载简历
               </el-button>
-              <el-button
-                type="default"
-                size="large"
-                @click="scrollToContact"
-                class="action-btn btn-click hover-lift"
-              >
-                <el-icon><Message /></el-icon>
-                联系我
-              </el-button>
             </div>
           </div>
         </el-col>
 
         <el-col :xs="24" :md="12" class="hero-avatar">
           <div class="avatar-container scroll-animate" data-animation="zoomIn" data-delay="1s">
-            <el-avatar
-              :size="200"
-              src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-              class="hero-avatar-img animate-float"
-            />
+            <el-avatar :size="200" :src="avatarImg" class="hero-avatar-img animate-float" />
             <div class="avatar-decoration"></div>
           </div>
         </el-col>
@@ -95,11 +82,13 @@
 </template>
 
 <script setup lang="ts">
+import avatarImg from '@/assets/1.jpg'
+
 const downloadResume = () => {
   // 触发下载 public 目录下的 PDF 文件
   const link = document.createElement('a')
-  link.href = '/刘威-前端-本科.pdf'
-  link.download = '刘威-前端-本科.pdf'
+  link.href = '/刘威-本科-前端.pdf'
+  link.download = '刘威-本科-前端.pdf'
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
@@ -174,6 +163,7 @@ const scrollToContact = () => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  font-size: 32px;
 }
 
 .hero-subtitle {

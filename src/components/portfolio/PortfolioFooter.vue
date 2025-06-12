@@ -3,55 +3,31 @@
     <div class="container">
       <div class="footer-content">
         <el-row :gutter="40">
-          <el-col :xs="24" :md="8">
+          <el-col :xs="24" :md="12">
             <div class="footer-section animate__animated animate__fadeInUp">
               <h3 class="footer-title">个人作品集</h3>
               <p class="footer-description">
                 专注于全栈开发和技术创新，致力于构建高质量的软件产品。
                 10年开发经验，期待与您的合作。
               </p>
-              <div class="social-links">
-                <el-button circle size="small" @click="openLink('https://github.com')">
-                  <el-icon><Platform /></el-icon>
-                </el-button>
-                <el-button circle size="small" @click="openLink('https://linkedin.com')">
-                  <el-icon><User /></el-icon>
-                </el-button>
-                <el-button circle size="small" @click="openLink('https://twitter.com')">
-                  <el-icon><ChatDotRound /></el-icon>
-                </el-button>
-              </div>
             </div>
           </el-col>
 
-          <el-col :xs="24" :md="8">
-            <div class="footer-section animate__animated animate__fadeInUp animate__delay-1s">
-              <h3 class="footer-title">快速链接</h3>
-              <ul class="footer-links">
-                <li><a href="#hero" @click="scrollToSection('hero')">首页</a></li>
-                <li><a href="#projects" @click="scrollToSection('projects')">项目展示</a></li>
-                <li><a href="#skills" @click="scrollToSection('skills')">技能栈</a></li>
-                <li><a href="#experience" @click="scrollToSection('experience')">工作经历</a></li>
-                <li><a href="#contact" @click="scrollToSection('contact')">联系方式</a></li>
-              </ul>
-            </div>
-          </el-col>
-
-          <el-col :xs="24" :md="8">
+          <el-col :xs="24" :md="12">
             <div class="footer-section animate__animated animate__fadeInUp animate__delay-2s">
               <h3 class="footer-title">联系信息</h3>
               <div class="contact-info">
                 <div class="contact-item">
                   <el-icon><Message /></el-icon>
-                  <span>your.email@example.com</span>
+                  <span>893624020@qq.com</span>
                 </div>
                 <div class="contact-item">
                   <el-icon><Phone /></el-icon>
-                  <span>+86 138-xxxx-xxxx</span>
+                  <span>+86 136-1860-8720</span>
                 </div>
                 <div class="contact-item">
                   <el-icon><Location /></el-icon>
-                  <span>北京市朝阳区</span>
+                  <span>湖北省武汉市</span>
                 </div>
               </div>
             </div>
@@ -63,7 +39,7 @@
         <el-divider />
         <div class="footer-bottom-content">
           <div class="copyright">
-            <p>&copy; {{ currentYear }} 张三. All rights reserved.</p>
+            <p>&copy; {{ currentYear }} 刘威. All rights reserved.</p>
           </div>
           <div class="powered-by">
             <p>

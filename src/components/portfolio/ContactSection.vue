@@ -9,95 +9,8 @@
       </div>
 
       <el-row :gutter="40">
-        <!-- 联系信息 -->
-        <el-col :xs="24" :lg="12">
-          <div class="contact-info scroll-animate" data-animation="fadeInLeft" data-delay="2s">
-            <h3 class="info-title">联系信息</h3>
-            <div class="contact-items">
-              <div class="contact-item">
-                <div class="contact-icon">
-                  <el-icon><Message /></el-icon>
-                </div>
-                <div class="contact-content">
-                  <h4>邮箱</h4>
-                  <p>893624020@qq.com</p>
-                </div>
-              </div>
-
-              <div class="contact-item">
-                <div class="contact-icon">
-                  <el-icon><Phone /></el-icon>
-                </div>
-                <div class="contact-content">
-                  <h4>电话</h4>
-                  <p>13618608720</p>
-                </div>
-              </div>
-
-              <div class="contact-item">
-                <div class="contact-icon">
-                  <el-icon><Location /></el-icon>
-                </div>
-                <div class="contact-content">
-                  <h4>位置</h4>
-                  <p>湖北省武汉市</p>
-                </div>
-              </div>
-
-              <div class="contact-item">
-                <div class="contact-icon">
-                  <el-icon><Link /></el-icon>
-                </div>
-                <div class="contact-content">
-                  <h4>个人主页</h4>
-                  <p>https://myself-63w.pages.dev/</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- 社交媒体链接 -->
-            <div class="social-links">
-              <h4>社交媒体</h4>
-              <div class="social-buttons">
-                <el-button
-                  circle
-                  type="primary"
-                  @click="openLink('https://github.com')"
-                  class="social-btn"
-                >
-                  <el-icon><Platform /></el-icon>
-                </el-button>
-                <el-button
-                  circle
-                  type="info"
-                  @click="openLink('https://linkedin.com')"
-                  class="social-btn"
-                >
-                  <el-icon><User /></el-icon>
-                </el-button>
-                <el-button
-                  circle
-                  type="success"
-                  @click="openLink('https://twitter.com')"
-                  class="social-btn"
-                >
-                  <el-icon><ChatDotRound /></el-icon>
-                </el-button>
-                <el-button
-                  circle
-                  type="warning"
-                  @click="downloadResume"
-                  class="social-btn btn-click animate-pulse"
-                >
-                  <el-icon><Download /></el-icon>
-                </el-button>
-              </div>
-            </div>
-          </div>
-        </el-col>
-
         <!-- 联系表单 -->
-        <el-col :xs="24" :lg="12">
+        <el-col :xs="24" :lg="12" :offset="6">
           <div class="contact-form scroll-animate" data-animation="fadeInRight" data-delay="2s">
             <h3 class="form-title">发送消息</h3>
             <el-form
@@ -207,15 +120,6 @@ const submitForm = async () => {
     loading.value = false
   }
 }
-
-const openLink = (url: string) => {
-  window.open(url, '_blank')
-}
-
-const downloadResume = () => {
-  // 这里可以添加下载简历的逻辑
-  ElMessage.info('简历下载功能开发中...')
-}
 </script>
 
 <style scoped>
@@ -253,7 +157,6 @@ const downloadResume = () => {
   margin: 0 auto;
 }
 
-.contact-info,
 .contact-form {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
@@ -263,73 +166,11 @@ const downloadResume = () => {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.info-title,
 .form-title {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 30px;
   color: #fff;
-}
-
-.contact-items {
-  margin-bottom: 40px;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 25px;
-}
-
-.contact-icon {
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 20px;
-  color: #ffd700;
-  font-size: 20px;
-}
-
-.contact-content h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 5px;
-  color: #fff;
-}
-
-.contact-content p {
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0;
-}
-
-.social-links h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: #fff;
-}
-
-.social-buttons {
-  display: flex;
-  gap: 15px;
-}
-
-.social-buttons .el-button {
-  width: 50px;
-  height: 50px;
-}
-
-.social-btn {
-  transition: all 0.3s ease;
-}
-
-.social-btn:hover {
-  transform: translateY(-3px) scale(1.1);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* 表单样式覆盖 */
@@ -380,25 +221,9 @@ const downloadResume = () => {
     padding: 60px 0;
   }
 
-  .contact-info,
   .contact-form {
     padding: 30px 20px;
     margin-bottom: 30px;
-  }
-
-  .contact-item {
-    margin-bottom: 20px;
-  }
-
-  .contact-icon {
-    width: 40px;
-    height: 40px;
-    margin-right: 15px;
-    font-size: 18px;
-  }
-
-  .social-buttons {
-    justify-content: center;
   }
 }
 </style>
