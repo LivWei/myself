@@ -5,7 +5,7 @@
         <el-row :gutter="40">
           <el-col :xs="24" :md="12">
             <div class="footer-section animate__animated animate__fadeInUp">
-              <h3 class="footer-title">个人作品集</h3>
+              <h3 class="footer-title">个人介绍</h3>
               <p class="footer-description">
                 专注于全栈开发和技术创新，致力于构建高质量的软件产品。
                 10年开发经验，期待与您的合作。

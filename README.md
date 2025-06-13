@@ -38,9 +38,9 @@ pnpm build
 pnpm lint
 ```
 
-# 个人作品集网站
+# 个人介绍网站
 
-这是一个基于Vue 3 + TypeScript + Element Plus构建的个人作品集网站，展示10年从业经历的各类型项目。
+这是一个基于Vue 3 + TypeScript + Element Plus构建的个人介绍网站，展示10年从业经历的各类型项目。
 
 ## 功能特性
 

@@ -2,7 +2,7 @@
   <el-header class="portfolio-header animate__animated animate__slideInDown">
     <div class="header-container">
       <div class="logo animate__animated animate__fadeInLeft">
-        <h2>个人作品集</h2>
+        <h2>个人介绍</h2>
       </div>
 
       <el-menu

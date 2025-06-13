@@ -50,6 +50,16 @@
                     {{ tech }}
                   </el-tag>
                 </div>
+                <!-- 跳转按钮 -->
+                <el-button
+                  v-if="project.demoUrl"
+                  type="success"
+                  size="small"
+                  class="demo-btn"
+                  @click.stop="openDemo(project.demoUrl)"
+                >
+                  查看详情
+                </el-button>
               </div>
             </el-card>
           </el-col>
@@ -221,6 +231,26 @@ const projects: Project[] = [
     features: ['大屏可视化开发', '平台前端开发'],
     demoUrl: '',
   },
+  {
+    id: 8,
+    title: 'openlayers示例',
+    description: '',
+    fullDescription: 'openlayers相关示例',
+    image: new URL('@/assets/openlayers-demo.png', import.meta.url).href,
+    technologies: ['Vue', 'OpenLayers'],
+    features: ['openlayers示例'],
+    demoUrl: '/code-display',
+  },
+  {
+    id: 9,
+    title: 'cesium示例',
+    description: '',
+    fullDescription: 'cesium相关示例',
+    image: new URL('@/assets/cesium-demo.png', import.meta.url).href,
+    technologies: ['Vue', 'Cesium'],
+    features: ['cesium示例'],
+    demoUrl: '/cesium',
+  },
 ]
 
 const openProjectDetail = (project: Project) => {
@@ -231,6 +261,10 @@ const openProjectDetail = (project: Project) => {
 const handleClose = () => {
   dialogVisible.value = false
   selectedProject.value = null
+}
+
+const openDemo = (url: string) => {
+  window.open(url, '_blank')
 }
 </script>
 
